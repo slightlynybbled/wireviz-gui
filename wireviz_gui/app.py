@@ -10,7 +10,6 @@ from yaml.scanner import ScannerError
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.menus import Menu
-from wireviz_gui.util import TextLineNumbers
 
 
 class Application(tk.Tk):
