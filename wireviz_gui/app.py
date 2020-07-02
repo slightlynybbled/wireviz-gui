@@ -1,12 +1,16 @@
 import logging
 from io import BytesIO, StringIO
 import tkinter as tk
+from tkinter.messagebox import showerror
 
 from PIL import Image, ImageTk
 from wireviz.wireviz import parse
+from yaml.parser import ParserError
+from yaml.scanner import ScannerError
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.menus import Menu
+from wireviz_gui.util import TextLineNumbers
 
 
 class Application(tk.Tk):
@@ -43,11 +47,17 @@ class InputOutputFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
-        self._text_entry_frame = TextEntryFrame(self, on_update_callback=self._update)
-        self._text_entry_frame.grid(row=0, column=0, sticky='ew')
+        r = 0
+        self._button_frame = ButtonFrame(self, on_click_refresh=self._update)
+        self._button_frame.grid(row=r, column=0, sticky='ew')
 
+        r += 1
+        self._text_entry_frame = TextEntryFrame(self, on_update_callback=self._update)
+        self._text_entry_frame.grid(row=1, column=0, sticky='ew')
+
+        r += 1
         self._harness_frame = HarnessFrame(self)
-        self._harness_frame.grid(row=0, column=0, sticky='ew')
+        self._harness_frame.grid(row=r, column=0, sticky='ew')
 
     def _update(self):
         """
@@ -57,11 +67,44 @@ class InputOutputFrame(BaseFrame):
         """
         f_in = StringIO(self._text_entry_frame.get())
 
-        data = parse(f_in, return_types='png')
+        try:
+            data = parse(f_in, return_types='png')
+        except (TypeError, ):
+            showerror('Parse Error', 'Input is invalid or missing')
+            return
+        except (ParserError, ScannerError) as e:
+
+            lines = str(e).lower()
+            for line in lines.split('\n'):
+                if 'line' in line:
+                    # determine the line number that has a problem
+                    parts = [l.strip() for l in line.split(',')]
+                    part = [l for l in parts if 'line' in l][0]
+                    error_line = part.split(' ')[1]
+                    self._text_entry_frame.highlight_line(error_line)
+                    break
+            showerror('Parse Error', f'Input is invalid: {e}')
+            return
+
         photo = ImageTk.PhotoImage(data=data)
 
         self._harness_frame\
             .update_image(photo_image=photo)
+
+        self._text_entry_frame.highlight_line(None)
+
+
+class ButtonFrame(BaseFrame):
+    def __init__(self, parent, on_click_refresh: callable, loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        c = 0
+        tk.Button(self, text='Generate All Exports')\
+            .grid(row=0, column=c, sticky='ew')
+
+        c += 1
+        tk.Button(self, text='Refresh View', command=on_click_refresh)\
+            .grid(row=0, column=c, sticky='ew')
 
 
 class TextEntryFrame(BaseFrame):
@@ -70,9 +113,10 @@ class TextEntryFrame(BaseFrame):
 
         self._on_update_callback = on_update_callback
 
-        self._text = tk.Text()
-        self._text.grid(row=0, column=0, sticky='news')
+        self._text = tk.Text(self)
+        self._text.grid(row=0, column=1, sticky='news')
         self._text.bind('<Control-l>', lambda _: self._updated())
+        self._text.tag_config('highlight', background='yellow')
 
     def associate_callback(self, on_update_callback: callable):
         self._on_update_callback = on_update_callback
@@ -83,6 +127,12 @@ class TextEntryFrame(BaseFrame):
 
     def get(self):
         return self._text.get('1.0', 'end')
+
+    def highlight_line(self, line_number: str):
+        self._text.tag_remove('highlight', f'0.0', 'end')
+
+        if line_number is not None:
+            self._text.tag_add('highlight', f'{line_number}.0', f'{line_number}.40')
 
 
 class HarnessFrame(BaseFrame):
