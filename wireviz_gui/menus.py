@@ -18,7 +18,8 @@ class FileMenu(BaseMenu):
 
         command_lookup = {
             'Save':         lambda: print('clicked save'),
-            'Export PNG':   lambda: print('exporting png...')
+            'Export PNG':   lambda: print('exporting png...'),
+            'Export All':   lambda: print('exporting all...'),
         }
 
         for label, command in command_lookup.items():
