@@ -19,4 +19,4 @@ class BaseMenu(Menu):
         self._parent = parent
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.setLevel(loglevel)
-        super().__init__(self._parent, **kwargs)
+        super().__init__(self._parent, tearoff=False, **kwargs)

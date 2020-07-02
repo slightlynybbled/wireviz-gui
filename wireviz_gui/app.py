@@ -6,6 +6,7 @@ from PIL import Image, ImageTk
 from wireviz.wireviz import parse
 
 from wireviz_gui._base import BaseFrame
+from wireviz_gui.menus import Menu
 
 
 class Application(tk.Tk):
@@ -14,6 +15,9 @@ class Application(tk.Tk):
         self._logger.setLevel(loglevel)
 
         super().__init__()
+
+        self._menu = Menu(self)
+        self.config(menu=self._menu)
 
         r = 0
         self._title_frame = TitleFrame(self)
