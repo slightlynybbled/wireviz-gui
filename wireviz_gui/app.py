@@ -67,7 +67,7 @@ class InputOutputFrame(BaseFrame):
         f_in = StringIO(self._text_entry_frame.get())
 
         try:
-            data = parse(f_in, return_types='png')
+            data = parse(f_in, return_types=('png', ))[0]
         except (TypeError, ):
             showerror('Parse Error', 'Input is invalid or missing')
             return
