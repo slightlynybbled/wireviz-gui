@@ -2,6 +2,12 @@
 
 To provide an easy-to-use graphical interface for [wireviz](https://github.com/formatc1702/WireViz).
 
+# Screenshot
+
+As this was just started, it is pretty basic:
+
+![screenshot](images/screenshot.png)
+
 # Motivation
 
 As you can see, the graphics generated using wireviz are quite good with minimum
