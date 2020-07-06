@@ -6,7 +6,7 @@ To provide an easy-to-use graphical interface for [wireviz](https://github.com/f
 
 As this was just started, it is pretty basic:
 
-![screenshot](images/screenshot.png)
+![screenshot](/images/screenshot.png)
 
 # Motivation
 
