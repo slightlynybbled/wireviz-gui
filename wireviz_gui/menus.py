@@ -5,21 +5,27 @@ from wireviz_gui._base import BaseMenu
 
 
 class Menu(BaseMenu):
-    def __init__(self, parent, loglevel=logging.INFO, **kwargs):
+    def __init__(self, parent,
+                 export_all: callable,
+                 refresh: callable,
+                 about: callable,
+                 loglevel=logging.INFO, **kwargs):
         super().__init__(parent=parent, loglevel=loglevel, **kwargs)
 
-        self.add_cascade(label='File', menu=FileMenu(self._parent))
-        self.add_cascade(label='Help', menu=HelpMenu(self._parent))
+        self.add_cascade(label='File', menu=FileMenu(self._parent, export_all=export_all, refresh=refresh))
+        self.add_cascade(label='Help', menu=HelpMenu(self._parent, about=about))
 
 
 class FileMenu(BaseMenu):
-    def __init__(self, parent, loglevel=logging.INFO, **kwargs):
+    def __init__(self, parent,
+                 export_all: callable,
+                 refresh: callable,
+                 loglevel=logging.INFO, **kwargs):
         super().__init__(parent=parent, loglevel=loglevel, **kwargs)
 
         command_lookup = {
-            'Save':         lambda: print('clicked save'),
-            'Export PNG':   lambda: print('exporting png...'),
-            'Export All':   lambda: print('exporting all...'),
+            'Export All':   lambda: export_all(),
+            'Refresh (CTRL+L)':      lambda: refresh(),
         }
 
         for label, command in command_lookup.items():
@@ -27,11 +33,11 @@ class FileMenu(BaseMenu):
 
 
 class HelpMenu(BaseMenu):
-    def __init__(self, parent, loglevel=logging.INFO, **kwargs):
+    def __init__(self, parent, about: callable, loglevel=logging.INFO, **kwargs):
         super().__init__(parent=parent, loglevel=loglevel, **kwargs)
 
         command_lookup = {
-            'About':         lambda: print('clicked about')
+            'About': lambda: about()
         }
 
         for label, command in command_lookup.items():

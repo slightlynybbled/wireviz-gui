@@ -1,16 +1,18 @@
 import logging
 from io import StringIO
 import tkinter as tk
+import tkinter.ttk as ttk
 from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
+import webbrowser
 
 from PIL import ImageTk
 from wireviz.wireviz import parse
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
-from wireviz_gui._base import BaseFrame
-from wireviz_gui.images import logo, refresh_fill, folder_transfer_fill
+from wireviz_gui._base import BaseFrame, ToplevelBase
+from wireviz_gui.images import logo, refresh_fill, folder_transfer_fill, slightlynybbled_logo_small
 from wireviz_gui.menus import Menu
 
 
@@ -21,8 +23,8 @@ class Application(tk.Tk):
 
         super().__init__()
 
-        self._menu = Menu(self)
-        self.config(menu=self._menu)
+        self._icon = tk.PhotoImage(data=slightlynybbled_logo_small)
+        self.tk.call('wm', 'iconphoto', self._w, self._icon)
 
         r = 0
         self._title_frame = TitleFrame(self)
@@ -32,7 +34,15 @@ class Application(tk.Tk):
         self._io_frame = InputOutputFrame(self)
         self._io_frame.grid(row=r, column=0, sticky='ew')
 
+        self._menu = Menu(self, export_all=self._io_frame.export_all,
+                          refresh=self._io_frame.refresh, about=self._about)
+        self.config(menu=self._menu)
+
         self.mainloop()
+
+    def _about(self):
+        top = ToplevelBase(self)
+        AboutFrame(top).grid()
 
 
 class TitleFrame(BaseFrame):
@@ -52,20 +62,20 @@ class InputOutputFrame(BaseFrame):
 
         r = 0
         self._button_frame = ButtonFrame(self,
-                                         on_click_export=self._export,
-                                         on_click_refresh=self._update)
+                                         on_click_export=self.export_all,
+                                         on_click_refresh=self.refresh)
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._text_entry_frame = TextEntryFrame(self,
-                                                on_update_callback=self._update)
+                                                on_update_callback=self.refresh)
         self._text_entry_frame.grid(row=1, column=0, sticky='ew')
 
         r += 1
         self._harness_frame = HarnessFrame(self)
         self._harness_frame.grid(row=r, column=0, sticky='ew')
 
-    def _export(self):
+    def export_all(self):
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
             return
@@ -76,7 +86,7 @@ class InputOutputFrame(BaseFrame):
             generate_bom=True,
         )
 
-    def _update(self):
+    def refresh(self):
         """
         This is where the data is read from the text entry and parsed into an image
 
@@ -115,13 +125,10 @@ class ButtonFrame(BaseFrame):
     def __init__(self, parent, on_click_export: callable, on_click_refresh: callable, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
-
-
         c = 0
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
         tk.Button(self, image=self._export_img, command=on_click_export)\
             .grid(row=0, column=c, sticky='ew')
-
 
         c += 1
         self._refresh_img = tk.PhotoImage(data=refresh_fill)
@@ -171,6 +178,45 @@ class HarnessFrame(BaseFrame):
             text=None,
             image=photo_image
         )
+
+
+class AboutFrame(BaseFrame):
+    def __init__(self, parent, loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        self._logo_img = tk.PhotoImage(data=logo)
+
+        r = 0
+        tk.Label(self, image=self._logo_img)\
+            .grid(row=r, column=0, columnspan=2)
+
+        r += 1
+        tk.Label(self, text='by jason r. jones', **self._normal)\
+            .grid(row=r, column=0, columnspan=2)
+
+        r += 1
+        ttk.Separator(self, orient='horizontal').grid(row=r, column=0, columnspan=2, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='built on ', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        wireviz_label = tk.Label(self, text='WireViz', **self._link)
+        wireviz_label.grid(row=r, column=1, sticky='w')
+        wireviz_label.bind('<Button-1>', lambda _: webbrowser.open('https://github.com/formatc1702/WireViz'))
+
+        r += 1
+        tk.Label(self, text='built on ', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        graphviz_label = tk.Label(self, text='graphviz', **self._link)
+        graphviz_label.grid(row=r, column=1, sticky='w')
+        graphviz_label.bind('<Button-1>', lambda _: webbrowser.open('https://graphviz.org/'))
+
+        r += 1
+        tk.Label(self, text='icons provided by ', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        remix_label = tk.Label(self, text='REMIX ICON', **self._link)
+        remix_label.grid(row=r, column=1, sticky='w')
+        remix_label.bind('<Button-1>', lambda _: webbrowser.open('https://remixicon.com/'))
 
 
 if __name__ == '__main__':
