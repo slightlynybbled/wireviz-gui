@@ -10,6 +10,7 @@ from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
 from wireviz_gui._base import BaseFrame
+from wireviz_gui.images import logo, refresh_fill, folder_transfer_fill
 from wireviz_gui.menus import Menu
 
 
@@ -38,9 +39,11 @@ class TitleFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
+        self._logo_img = tk.PhotoImage(data=logo)
+
         r = 0
-        tk.Label(self, text='WireViz GUI', **self._heading)\
-            .grid(row=r, column=0, sticky='ew')
+        tk.Label(self, image=self._logo_img)\
+            .grid(row=r, column=0, sticky='news')
 
 
 class InputOutputFrame(BaseFrame):
@@ -54,7 +57,8 @@ class InputOutputFrame(BaseFrame):
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._text_entry_frame = TextEntryFrame(self, on_update_callback=self._update)
+        self._text_entry_frame = TextEntryFrame(self,
+                                                on_update_callback=self._update)
         self._text_entry_frame.grid(row=1, column=0, sticky='ew')
 
         r += 1
@@ -111,12 +115,17 @@ class ButtonFrame(BaseFrame):
     def __init__(self, parent, on_click_export: callable, on_click_refresh: callable, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
+
+
         c = 0
-        tk.Button(self, text='Generate All Exports', command=on_click_export)\
+        self._export_img = tk.PhotoImage(data=folder_transfer_fill)
+        tk.Button(self, image=self._export_img, command=on_click_export)\
             .grid(row=0, column=c, sticky='ew')
 
+
         c += 1
-        tk.Button(self, text='Refresh View', command=on_click_refresh)\
+        self._refresh_img = tk.PhotoImage(data=refresh_fill)
+        tk.Button(self, image=self._refresh_img, command=on_click_refresh, **self._heading)\
             .grid(row=0, column=c, sticky='ew')
 
 
