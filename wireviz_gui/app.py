@@ -1,9 +1,9 @@
 import logging
-from io import BytesIO, StringIO
+from io import StringIO
 import tkinter as tk
 from tkinter.messagebox import showerror
 
-from PIL import Image, ImageTk
+from PIL import ImageTk
 from wireviz.wireviz import parse
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
@@ -47,7 +47,9 @@ class InputOutputFrame(BaseFrame):
         super().__init__(parent, loglevel=loglevel)
 
         r = 0
-        self._button_frame = ButtonFrame(self, on_click_refresh=self._update)
+        self._button_frame = ButtonFrame(self,
+                                         on_click_export=self._export,
+                                         on_click_refresh=self._update)
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
@@ -57,6 +59,9 @@ class InputOutputFrame(BaseFrame):
         r += 1
         self._harness_frame = HarnessFrame(self)
         self._harness_frame.grid(row=r, column=0, sticky='ew')
+
+    def _export(self):
+        pass
 
     def _update(self):
         """
@@ -94,11 +99,11 @@ class InputOutputFrame(BaseFrame):
 
 
 class ButtonFrame(BaseFrame):
-    def __init__(self, parent, on_click_refresh: callable, loglevel=logging.INFO):
+    def __init__(self, parent, on_click_export: callable, on_click_refresh: callable, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
         c = 0
-        tk.Button(self, text='Generate All Exports')\
+        tk.Button(self, text='Generate All Exports', command=on_click_export)\
             .grid(row=0, column=c, sticky='ew')
 
         c += 1
