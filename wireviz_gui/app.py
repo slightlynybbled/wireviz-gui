@@ -1,6 +1,7 @@
 import logging
 from io import StringIO
 import tkinter as tk
+from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
 
 from PIL import ImageTk
@@ -61,7 +62,15 @@ class InputOutputFrame(BaseFrame):
         self._harness_frame.grid(row=r, column=0, sticky='ew')
 
     def _export(self):
-        pass
+        file_name = asksaveasfilename()
+        if file_name is None or file_name.strip() == '':
+            return
+
+        parse(
+            yaml_input=self._text_entry_frame.get(),
+            file_out=file_name,
+            generate_bom=True,
+        )
 
     def _update(self):
         """
