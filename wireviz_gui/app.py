@@ -6,6 +6,7 @@ from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
 import webbrowser
 
+from graphviz import ExecutableNotFound
 from PIL import ImageTk
 from wireviz.wireviz import parse
 from yaml.parser import ParserError
@@ -83,11 +84,16 @@ class InputOutputFrame(BaseFrame):
         if file_name is None or file_name.strip() == '':
             return
 
-        parse(
-            yaml_input=self._text_entry_frame.get(),
-            file_out=file_name,
-            generate_bom=True,
-        )
+        try:
+            parse(
+                yaml_input=self._text_entry_frame.get(),
+                file_out=file_name,
+                generate_bom=True,
+            )
+        except ExecutableNotFound:
+            showerror('Error', 'Graphviz executable not found; Make sure that the '
+                               'executable is installed and in your system PATH')
+            return
 
     def refresh(self):
         """
@@ -103,7 +109,6 @@ class InputOutputFrame(BaseFrame):
             showerror('Parse Error', 'Input is invalid or missing')
             return
         except (ParserError, ScannerError) as e:
-
             lines = str(e).lower()
             for line in lines.split('\n'):
                 if 'line' in line:
@@ -114,6 +119,10 @@ class InputOutputFrame(BaseFrame):
                     self._text_entry_frame.highlight_line(error_line)
                     break
             showerror('Parse Error', f'Input is invalid: {e}')
+            return
+        except ExecutableNotFound:
+            showerror('Error', 'Graphviz executable not found; Make sure that the '
+                               'executable is installed and in your system PATH')
             return
 
         photo = ImageTk.PhotoImage(data=data)
