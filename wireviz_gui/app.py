@@ -23,6 +23,8 @@ class Application(tk.Tk):
 
         super().__init__()
 
+        self.title('wireviz-gui')
+
         self._icon = tk.PhotoImage(data=slightlynybbled_logo_small)
         self.tk.call('wm', 'iconphoto', self._w, self._icon)
 
@@ -42,6 +44,7 @@ class Application(tk.Tk):
 
     def _about(self):
         top = ToplevelBase(self)
+        top.title('About')
         AboutFrame(top).grid()
 
 
