@@ -4,7 +4,7 @@ To provide an easy-to-use graphical interface for [wireviz](https://github.com/f
 
 # Screenshot
 
-As this was just started, it is pretty basic:
+As this was just started, it is pretty basic, but there is lots of potential.
 
 ![screenshot](/docs/screenshots/screenshot.png)
 
@@ -14,14 +14,17 @@ As you can see, the graphics generated using wireviz are quite good with minimum
 effort... for those familiar with the command line.  I work with many people who
 would love the output files, but hate the interface and, thus, would not use it.
 
-Therefore, I'm going to give a good start to creating it!
-
 # Installation
 
 For the moment, this is not available as an executable or any other "nice" package,
 so here it is.  Those familiar with python and virtual environments will be able
 to knock this out pretty quickly.  Those not familiar... will have to wait for
-a release.
+a release.  I anticipate that I will release some sort of nice package on the heels 
+of the first [wireviz](https://github.com/formatc1702/WireViz) release.  The pull
+requested that enabled the GUI to provide previews has already been accepted, but not
+merged into the `main` branch so I expect an initial release in the coming weeks.
+
+## Manual Installation of... Everything
 
 Where there are `git clones`, I'm assuming that we are working from the `C:\code\`
 directory.  Adjust as you see fit.
@@ -61,8 +64,8 @@ the time being:
     (venv) C:\code\WireViz>pip install .\WireViz
     
 !!! NOTE !!! As of this writing, the [pull request](https://github.com/formatc1702/WireViz/pull/55) 
-enabling this features has not been merged to the main branch!  You will have to 
-checkout the `dev` branch for this to work!
+enabling this features has not been merged to the `main` branch!  You will have 
+to checkout the `dev` branch for this to work!
     
 ## Execution
 
