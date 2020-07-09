@@ -69,8 +69,7 @@ the time being:
     (venv) C:\code\wireviz-gui\>cd ..
     (venv) C:\code\>git clone https://github.com/formatc1702/WireViz
     (venv) C:\code\>cd WireViz
-    (venv) C:\code\WireViz\>git checkout dev
-    (venv) C:\code\WireViz>pip install .\WireViz
+    (venv) C:\code\WireViz\>python setup.py install
     
 !!! NOTE !!! As of this writing, the [pull request](https://github.com/formatc1702/WireViz/pull/55) 
 enabling this features has not been merged to the `main` branch!  You will have 
