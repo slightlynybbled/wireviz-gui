@@ -5,6 +5,7 @@ import tkinter.ttk as ttk
 import webbrowser
 
 from wireviz.DataClasses import Connector, Cable
+from wireviz.wv_colors import color_full
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.images import logo
@@ -353,7 +354,7 @@ class AddCableFrame(BaseFrame):
         self._shield_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
-        self._pins_frame = PinsFrame(self)
+        self._pins_frame = WiresFrame(self)
         self._pins_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
 
         r += 1
@@ -363,7 +364,7 @@ class AddCableFrame(BaseFrame):
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
         r += 1
-        tk.Button(self, text='Save Connector',
+        tk.Button(self, text='Save Cable',
                   command=self._save,
                   **self._normal)\
             .grid(row=r, column=0, columnspan=2, sticky='ew')
@@ -431,7 +432,7 @@ class WiresFrame(BaseFrame):
 
     @property
     def wire_numbers(self):
-        pin_numbers = [p.number for p in self._wire_frames]
+        pin_numbers = [w.number for w in self._wire_frames]
 
         return pin_numbers
 
@@ -451,12 +452,12 @@ class WiresFrame(BaseFrame):
             next_num = 1
 
         self._wire_frames.append(
-            PinFrame(self, pin_number=next_num, on_delete_callback=self._redraw)
+            WireFrame(self, wire_number=next_num, on_delete_callback=self._redraw)
         )
 
         self._redraw()
 
-    def _remove_pin(self, index):
+    def _remove_wire(self, index):
         self._wire_frames.pop(index)
         self._redraw()
 
@@ -475,27 +476,34 @@ class WireFrame(BaseFrame):
 
         self._wire_number_entry = tk.Entry(self)
         self._wire_number_entry.grid(row=0, column=0, sticky='ew')
-        self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_pin_number())
-        self._wire_number_entry.bind('<Return>', lambda _: self._update_pin_number())
+        self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_wire_number())
+        self._wire_number_entry.bind('<Return>', lambda _: self._update_wire_number())
 
-        self._wire_color_entry = tk.Entry(self)
-        self._wire_color_entry.grid(row=0, column=1, sticky='ew')
-        self._wire_color_entry.bind('<FocusOut>', lambda _: self._update_pin_name())
-        self._wire_color_entry.bind('<Return>', lambda _: self._update_pin_name())
-        self._wire_color_entry.insert(0, f'{self._wire_name}')
+        # self._wire_color_entry = tk.Entry(self)
+        # self._wire_color_entry.grid(row=0, column=1, sticky='ew')
+        # self._wire_color_entry.bind('<FocusOut>', lambda _: self._update_pin_name())
+        # self._wire_color_entry.bind('<Return>', lambda _: self._update_pin_name())
+        # self._wire_color_entry.insert(0, f'{self._wire_name}')
+
+        print(color_full.keys())
+        self._wire_color_cb = ttk.Combobox(self, values=list(color_full.keys()))
+        self._wire_color_cb.grid(row=0, column=1, sticky='ew')
+        self._wire_color_cb.insert(0, 'WH')
+        self._wire_color_cb.bind('<FocusOut>', lambda _: self._update_wire_name())
+        self._wire_color_cb.bind('<Return>', lambda _: self._update_wire_name())
 
         self._x_label = tk.Label(self, text='X', **self._red)
         self._x_label.grid(row=0, column=2, sticky='ew')
         self._x_label.bind('<Button-1>', lambda _: self._delete())
 
-        self._update_pin_number()
-        self._update_pin_name()
+        self._update_wire_number()
+        self._update_wire_name()
 
     def refresh(self):
-        self._update_pin_number()
-        self._update_pin_name()
+        self._update_wire_number()
+        self._update_wire_name()
 
-    def _update_pin_number(self):
+    def _update_wire_number(self):
         try:
             value = int(self._wire_number_entry.get())
         except ValueError:
@@ -511,8 +519,8 @@ class WireFrame(BaseFrame):
         if self._on_delete_callback is not None:
             self._on_delete_callback()
 
-    def _update_pin_name(self):
-        value = self._wire_color_entry.get().strip()
+    def _update_wire_name(self):
+        value = self._wire_color_cb.get().strip()
         if value == '':
             self._wire_number_entry.delete(0, 'end')
             self._wire_number_entry.insert(0, f'{self._wire_name}')
