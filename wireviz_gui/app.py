@@ -85,7 +85,12 @@ class InputOutputFrame(BaseFrame):
     def add_connector(self):
         top = ToplevelBase(self)
         top.title('Add Connector')
-        AddConnectorFrame(top).grid()
+
+        def on_save(connector):
+            self._harness.connectors[connector.name] = connector
+            top.destroy()
+
+        AddConnectorFrame(top, on_save_callback=on_save).grid()
 
     def export_all(self):
         file_name = asksaveasfilename()

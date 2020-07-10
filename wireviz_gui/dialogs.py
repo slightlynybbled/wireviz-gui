@@ -68,6 +68,30 @@ class AddConnectorFrame(BaseFrame):
         self._name_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
+        tk.Label(self, text='Manufacturer:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._manuf_entry = tk.Entry(self)
+        self._manuf_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Manuf. Part Number:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._mpn_entry = tk.Entry(self)
+        self._mpn_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Internal Part Number:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._ipm_entry = tk.Entry(self)
+        self._ipm_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Category:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._cat_entry = tk.Entry(self)
+        self._cat_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
         tk.Label(self, text='Type:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
         self._type_entry = tk.Entry(self)
@@ -97,23 +121,35 @@ class AddConnectorFrame(BaseFrame):
 
     def _save(self):
         name = self._name_entry.get().strip()
+        manuf = self._manuf_entry.get().strip()
+        mpn = self._mpn_entry.get().strip()
+        ipm = self._ipm_entry.get().strip()
+        category = self._cat_entry.get().strip()
         type = self._type_entry.get().strip()
         subtype = self._subtype_entry.get().strip()
-        pins = self._pins_frame.get()
 
         kwargs = {}
         if name:
             kwargs['name'] = name
+        if category:
+            kwargs['manufacturer'] = manuf
+        if category:
+            kwargs['manufacturer_part_number'] = mpn
+        if category:
+            kwargs['internal_part_number'] = ipm
+        if category:
+            kwargs['category'] = category
         if type:
             kwargs['type'] = type
         if subtype:
             kwargs['subtype'] = subtype
-
+        kwargs['pinout'] = self._pins_frame.pinout
 
         try:
-            connector = Connector(name=name)
+            connector = Connector(**kwargs)
         except Exception as e:
             showerror('Invalid Input', f'{e}')
+            return
 
         if self._on_save_callback is not None:
             self._on_save_callback(connector)
@@ -146,6 +182,10 @@ class PinsFrame(BaseFrame):
         pin_numbers = [p.number for p in self._pin_frames]
 
         return pin_numbers
+
+    @property
+    def pinout(self):
+        return [p.name for p in self._pin_frames]
 
     def add_pin(self):
         if len(self._pin_frames) > 0:
