@@ -4,7 +4,7 @@ from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
 import webbrowser
 
-from wireviz.DataClasses import Connector
+from wireviz.DataClasses import Connector, Cable
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.images import logo
@@ -278,3 +278,252 @@ class PinFrame(BaseFrame):
     @property
     def name(self):
         return self._pin_name
+
+
+class AddCableFrame(BaseFrame):
+    def __init__(self, parent,
+                 on_save_callback: callable = None,
+                 loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        self._on_save_callback = on_save_callback
+
+        r = 0
+        tk.Label(self, text='Add Cable', **self._heading)\
+            .grid(row=r, column=0, columnspan=2, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Name:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._name_entry = tk.Entry(self)
+        self._name_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Manufacturer:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._manuf_entry = tk.Entry(self)
+        self._manuf_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Manuf. Part Number:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._mpn_entry = tk.Entry(self)
+        self._mpn_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Internal Part Number:', **self._normal) \
+            .grid(row=r, column=0, sticky='e')
+        self._ipm_entry = tk.Entry(self)
+        self._ipm_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Category:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._cat_entry = tk.Entry(self)
+        self._cat_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Type:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._type_entry = tk.Entry(self)
+        self._type_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Gauge:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._gauge_entry = tk.Entry(self)
+        self._gauge_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Gauge Unit:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._gauge_unit_entry = tk.Entry(self)
+        self._gauge_unit_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Length:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._length_entry = tk.Entry(self)
+        self._length_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        tk.Label(self, text='Shield:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._shield_entry = tk.Entry(self)
+        self._shield_entry.grid(row=r, column=1, sticky='ew')
+
+        r += 1
+        self._pins_frame = PinsFrame(self)
+        self._pins_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
+
+        r += 1
+        tk.Button(self, text='Add Wire',
+                  command=lambda: self._pins_frame.add_pin(),
+                  **self._normal)\
+            .grid(row=r, column=0, columnspan=2, sticky='ew')
+
+        r += 1
+        tk.Button(self, text='Save Connector',
+                  command=self._save,
+                  **self._normal)\
+            .grid(row=r, column=0, columnspan=2, sticky='ew')
+
+    def _save(self):
+        name = self._name_entry.get().strip()
+        manuf = self._manuf_entry.get().strip()
+        mpn = self._mpn_entry.get().strip()
+        ipm = self._ipm_entry.get().strip()
+        category = self._cat_entry.get().strip()
+        type = self._type_entry.get().strip()
+        subtype = self._gauge_entry.get().strip()
+
+        kwargs = {}
+        if name:
+            kwargs['name'] = name
+        if category:
+            kwargs['manufacturer'] = manuf
+        if category:
+            kwargs['manufacturer_part_number'] = mpn
+        if category:
+            kwargs['internal_part_number'] = ipm
+        if category:
+            kwargs['category'] = category
+        if type:
+            kwargs['type'] = type
+        if subtype:
+            kwargs['subtype'] = subtype
+
+        self._pins_frame.update_all()
+        kwargs['pinnumbers'] = self._pins_frame.pin_numbers
+        kwargs['pinout'] = self._pins_frame.pinout
+
+        try:
+            connector = Cable(**kwargs)
+        except Exception as e:
+            showerror('Invalid Input', f'{e}')
+            return
+
+        if self._on_save_callback is not None:
+            self._on_save_callback(connector)
+
+
+class WiresFrame(BaseFrame):
+    def __init__(self, parent,
+                 loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        self._wire_frames = []
+
+        self._redraw()
+
+    def _redraw(self):
+        for child in self.winfo_children():
+            child.grid_forget()
+
+        self._wire_frames = [wf for wf in self._wire_frames if wf.number is not None]
+
+        if len(self._wire_frames) > 0:
+            for i, frame in enumerate(self._wire_frames):
+                frame.grid(row=i+1, column=0, sticky='ew')
+            return
+
+        tk.Label(self, text='(no wires)', **self._normal).grid(row=0, column=0, sticky='ew')
+
+    @property
+    def wire_numbers(self):
+        pin_numbers = [p.number for p in self._wire_frames]
+
+        return pin_numbers
+
+    @property
+    def colors(self):
+        return [p.name for p in self._wire_frames]
+
+    def update_all(self):
+        for pf in self._wire_frames:
+            pf.refresh()
+
+    def add_pin(self):
+        if len(self._wire_frames) > 0:
+            pin_nums = [f.number for f in self._wire_frames]
+            next_num = max(pin_nums) + 1
+        else:
+            next_num = 1
+
+        self._wire_frames.append(
+            PinFrame(self, pin_number=next_num, on_delete_callback=self._redraw)
+        )
+
+        self._redraw()
+
+    def _remove_pin(self, index):
+        self._wire_frames.pop(index)
+        self._redraw()
+
+
+class WireFrame(BaseFrame):
+    def __init__(self, parent,
+                 wire_number: int,
+                 wire_color: str = None,
+                 on_delete_callback: callable = None,
+                 loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        self._wire_number = wire_number
+        self._wire_name = wire_color
+        self._on_delete_callback = on_delete_callback
+
+        self._wire_number_entry = tk.Entry(self)
+        self._wire_number_entry.grid(row=0, column=0, sticky='ew')
+        self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_pin_number())
+        self._wire_number_entry.bind('<Return>', lambda _: self._update_pin_number())
+
+        self._wire_color_entry = tk.Entry(self)
+        self._wire_color_entry.grid(row=0, column=1, sticky='ew')
+        self._wire_color_entry.bind('<FocusOut>', lambda _: self._update_pin_name())
+        self._wire_color_entry.bind('<Return>', lambda _: self._update_pin_name())
+        self._wire_color_entry.insert(0, f'{self._wire_name}')
+
+        self._x_label = tk.Label(self, text='X', **self._red)
+        self._x_label.grid(row=0, column=2, sticky='ew')
+        self._x_label.bind('<Button-1>', lambda _: self._delete())
+
+        self._update_pin_number()
+        self._update_pin_name()
+
+    def refresh(self):
+        self._update_pin_number()
+        self._update_pin_name()
+
+    def _update_pin_number(self):
+        try:
+            value = int(self._wire_number_entry.get())
+        except ValueError:
+            self._wire_number_entry.delete(0, 'end')
+            self._wire_number_entry.insert(0, f'{self._wire_number}')
+            return
+
+        self._wire_number = value
+
+    def _delete(self):
+        self._wire_number = None
+
+        if self._on_delete_callback is not None:
+            self._on_delete_callback()
+
+    def _update_pin_name(self):
+        value = self._wire_color_entry.get().strip()
+        if value == '':
+            self._wire_number_entry.delete(0, 'end')
+            self._wire_number_entry.insert(0, f'{self._wire_name}')
+            return
+
+        self._wire_name = value
+
+    @property
+    def number(self):
+        return self._wire_number
+
+    @property
+    def name(self):
+        return self._wire_name

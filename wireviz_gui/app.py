@@ -12,7 +12,7 @@ from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
 from wireviz_gui._base import BaseFrame, ToplevelBase
-from wireviz_gui.dialogs import AboutFrame, AddConnectorFrame
+from wireviz_gui.dialogs import AboutFrame, AddCableFrame, AddConnectorFrame
 from wireviz_gui.images import *
 from wireviz_gui.menus import Menu
 
@@ -69,6 +69,7 @@ class InputOutputFrame(BaseFrame):
         r = 0
         self._button_frame = ButtonFrame(self,
                                          on_click_add_conn=self.add_connector,
+                                         on_click_add_cable=self.add_cable,
                                          on_click_export=self.export_all,
                                          on_click_refresh=self.refresh)
         self._button_frame.grid(row=r, column=0, sticky='ew')
@@ -91,6 +92,16 @@ class InputOutputFrame(BaseFrame):
             top.destroy()
 
         AddConnectorFrame(top, on_save_callback=on_save).grid()
+
+    def add_cable(self):
+        top = ToplevelBase(self)
+        top.title('Add Connector')
+
+        def on_save(connector):
+            self._harness.connectors[connector.name] = connector
+            top.destroy()
+
+        AddCableFrame(top, on_save_callback=on_save).grid()
 
     def export_all(self):
         file_name = asksaveasfilename()
@@ -147,7 +158,8 @@ class InputOutputFrame(BaseFrame):
 
 
 class ButtonFrame(BaseFrame):
-    def __init__(self, parent, on_click_add_conn: callable,
+    def __init__(self, parent,
+                 on_click_add_conn: callable, on_click_add_cable: callable,
                  on_click_export: callable, on_click_refresh: callable,
                  loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
@@ -159,7 +171,7 @@ class ButtonFrame(BaseFrame):
 
         c += 1
         self._add_cable_img = tk.PhotoImage(data=add_circle_fill)
-        tk.Button(self, image=self._add_cable_img)\
+        tk.Button(self, image=self._add_cable_img, command=on_click_add_cable)\
             .grid(row=0, column=c, sticky='ew')
 
         c += 1
