@@ -13,7 +13,7 @@ from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
 from wireviz_gui._base import BaseFrame, ToplevelBase
-from wireviz_gui.images import logo, refresh_fill, folder_transfer_fill, slightlynybbled_logo_small
+from wireviz_gui.images import *
 from wireviz_gui.menus import Menu
 
 
@@ -138,6 +138,21 @@ class ButtonFrame(BaseFrame):
         super().__init__(parent, loglevel=loglevel)
 
         c = 0
+        self._add_conn_img = tk.PhotoImage(data=add_box_fill)
+        tk.Button(self, image=self._add_conn_img)\
+            .grid(row=0, column=c, sticky='ew')
+
+        c += 1
+        self._add_cable_img = tk.PhotoImage(data=add_circle_fill)
+        tk.Button(self, image=self._add_cable_img)\
+            .grid(row=0, column=c, sticky='ew')
+
+        c += 1
+        self._add_connect_img = tk.PhotoImage(data=links_fill)
+        tk.Button(self, image=self._add_connect_img)\
+            .grid(row=0, column=c, sticky='ew')
+
+        c += 1
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
         tk.Button(self, image=self._export_img, command=on_click_export)\
             .grid(row=0, column=c, sticky='ew')
