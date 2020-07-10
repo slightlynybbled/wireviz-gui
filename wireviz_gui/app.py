@@ -68,6 +68,7 @@ class InputOutputFrame(BaseFrame):
 
         r = 0
         self._button_frame = ButtonFrame(self,
+                                         on_click_add_conn=self.add_connector,
                                          on_click_export=self.export_all,
                                          on_click_refresh=self.refresh)
         self._button_frame.grid(row=r, column=0, sticky='ew')
@@ -78,7 +79,7 @@ class InputOutputFrame(BaseFrame):
         self._text_entry_frame.grid(row=1, column=0, sticky='ew')
 
         r += 1
-        self._harness_frame = HarnessFrame(self)
+        self._harness_frame = HarnessViewFrame(self)
         self._harness_frame.grid(row=r, column=0, sticky='ew')
 
     def add_connector(self):
@@ -141,12 +142,14 @@ class InputOutputFrame(BaseFrame):
 
 
 class ButtonFrame(BaseFrame):
-    def __init__(self, parent, on_click_export: callable, on_click_refresh: callable, loglevel=logging.INFO):
+    def __init__(self, parent, on_click_add_conn: callable,
+                 on_click_export: callable, on_click_refresh: callable,
+                 loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
         c = 0
         self._add_conn_img = tk.PhotoImage(data=add_box_fill)
-        tk.Button(self, image=self._add_conn_img)\
+        tk.Button(self, image=self._add_conn_img, command=on_click_add_conn)\
             .grid(row=0, column=c, sticky='ew')
 
         c += 1
@@ -198,7 +201,7 @@ class TextEntryFrame(BaseFrame):
             self._text.tag_add('highlight', f'{line_number}.0', f'{line_number}.40')
 
 
-class HarnessFrame(BaseFrame):
+class HarnessViewFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
