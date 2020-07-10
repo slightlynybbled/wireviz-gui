@@ -7,6 +7,7 @@ from wireviz_gui.images import slightlynybbled_logo_small
 class BaseFrame(Frame):
     _normal = {'font': ('Arial', 12)}
     _link = {'font': ('Arial', 12), 'fg': 'blue'}
+    _red = {'font': ('Arial', 12), 'fg': 'red'}
     _heading = {'font': ('Arial', 16)}
 
     def __init__(self, parent, loglevel, **kwargs):
