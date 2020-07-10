@@ -143,6 +143,9 @@ class AddConnectorFrame(BaseFrame):
             kwargs['type'] = type
         if subtype:
             kwargs['subtype'] = subtype
+
+        self._pins_frame.update_all()
+        kwargs['pinnumbers'] = self._pins_frame.pin_numbers
         kwargs['pinout'] = self._pins_frame.pinout
 
         try:
@@ -186,6 +189,10 @@ class PinsFrame(BaseFrame):
     @property
     def pinout(self):
         return [p.name for p in self._pin_frames]
+
+    def update_all(self):
+        for pf in self._pin_frames:
+            pf.refresh()
 
     def add_pin(self):
         if len(self._pin_frames) > 0:
@@ -232,6 +239,10 @@ class PinFrame(BaseFrame):
         self._x_label.grid(row=0, column=2, sticky='ew')
         self._x_label.bind('<Button-1>', lambda _: self._delete())
 
+        self._update_pin_number()
+        self._update_pin_name()
+
+    def refresh(self):
         self._update_pin_number()
         self._update_pin_name()
 
