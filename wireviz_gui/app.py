@@ -9,6 +9,7 @@ import webbrowser
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
 from wireviz.wireviz import parse
+from wireviz.Harness import Harness
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
@@ -22,7 +23,7 @@ class Application(tk.Tk):
         self._logger = logging.getLogger(self.__class__.__name__)
         self._logger.setLevel(loglevel)
 
-        super().__init__()
+        super().__init__(**kwargs)
 
         self.title('wireviz-gui')
 
