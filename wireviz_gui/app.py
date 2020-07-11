@@ -95,7 +95,7 @@ class InputOutputFrame(BaseFrame):
 
     def add_cable(self):
         top = ToplevelBase(self)
-        top.title('Add Connector')
+        top.title('Add Cable')
 
         def on_save(connector):
             self._harness.connectors[connector.name] = connector
