@@ -354,12 +354,12 @@ class AddCableFrame(BaseFrame):
         self._shield_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
-        self._pins_frame = WiresFrame(self)
-        self._pins_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
+        self._wires_frame = WiresFrame(self)
+        self._wires_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
 
         r += 1
         tk.Button(self, text='Add Wire',
-                  command=lambda: self._pins_frame.add_pin(),
+                  command=lambda: self._wires_frame.add_wire(),
                   **self._normal)\
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
@@ -394,9 +394,9 @@ class AddCableFrame(BaseFrame):
         if subtype:
             kwargs['subtype'] = subtype
 
-        self._pins_frame.update_all()
-        kwargs['pinnumbers'] = self._pins_frame.pin_numbers
-        kwargs['pinout'] = self._pins_frame.pinout
+        self._wires_frame.update_all()
+        kwargs['pinnumbers'] = self._wires_frame.pin_numbers
+        kwargs['pinout'] = self._wires_frame.pinout
 
         try:
             connector = Cable(**kwargs)
@@ -444,7 +444,7 @@ class WiresFrame(BaseFrame):
         for pf in self._wire_frames:
             pf.refresh()
 
-    def add_pin(self):
+    def add_wire(self):
         if len(self._wire_frames) > 0:
             pin_nums = [f.number for f in self._wire_frames]
             next_num = max(pin_nums) + 1
@@ -479,13 +479,6 @@ class WireFrame(BaseFrame):
         self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_wire_number())
         self._wire_number_entry.bind('<Return>', lambda _: self._update_wire_number())
 
-        # self._wire_color_entry = tk.Entry(self)
-        # self._wire_color_entry.grid(row=0, column=1, sticky='ew')
-        # self._wire_color_entry.bind('<FocusOut>', lambda _: self._update_pin_name())
-        # self._wire_color_entry.bind('<Return>', lambda _: self._update_pin_name())
-        # self._wire_color_entry.insert(0, f'{self._wire_name}')
-
-        print(color_full.keys())
         self._wire_color_cb = ttk.Combobox(self, values=list(color_full.keys()))
         self._wire_color_cb.grid(row=0, column=1, sticky='ew')
         self._wire_color_cb.insert(0, 'WH')
