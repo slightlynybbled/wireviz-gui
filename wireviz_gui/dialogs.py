@@ -6,6 +6,7 @@ import webbrowser
 
 from wireviz.DataClasses import Connector, Cable
 from wireviz.wv_colors import color_full
+from wireviz.wv_helper import awg_equiv_table
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.images import logo
@@ -332,26 +333,23 @@ class AddCableFrame(BaseFrame):
         r += 1
         tk.Label(self, text='Gauge:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        self._gauge_entry = tk.Entry(self)
-        self._gauge_entry.grid(row=r, column=1, sticky='ew')
-
-        r += 1
-        tk.Label(self, text='Gauge Unit:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        self._gauge_unit_entry = tk.Entry(self)
-        self._gauge_unit_entry.grid(row=r, column=1, sticky='ew')
+        awg_list = [v for _, v in awg_equiv_table.items()]
+        self._gauge_cb = ttk.Combobox(self, values=awg_list)
+        self._gauge_cb.grid(row=r, column=1, sticky='ew')
+        tk.Label(self, text='AWG', **self._normal).grid(row=r, column=2, sticky='ew')
 
         r += 1
         tk.Label(self, text='Length:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
         self._length_entry = tk.Entry(self)
         self._length_entry.grid(row=r, column=1, sticky='ew')
+        tk.Label(self, text='mm', **self._normal).grid(row=r, column=2, sticky='ew')
 
         r += 1
         tk.Label(self, text='Shield:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        self._shield_entry = tk.Entry(self)
-        self._shield_entry.grid(row=r, column=1, sticky='ew')
+        self._shield_cb = ttk.Checkbutton(self)
+        self._shield_cb.grid(row=r, column=1, sticky='ew')
 
         r += 1
         self._wires_frame = WiresFrame(self)
@@ -376,7 +374,8 @@ class AddCableFrame(BaseFrame):
         ipm = self._ipm_entry.get().strip()
         category = self._cat_entry.get().strip()
         type = self._type_entry.get().strip()
-        subtype = self._gauge_entry.get().strip()
+        gauge = self._gauge_cb.get().strip()
+        gauge_unit = self._gauge_cb.get().strip()
 
         kwargs = {}
         if name:
