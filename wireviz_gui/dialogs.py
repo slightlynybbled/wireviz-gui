@@ -348,7 +348,9 @@ class AddCableFrame(BaseFrame):
         r += 1
         tk.Label(self, text='Shield:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        self._shield_cb = ttk.Checkbutton(self)
+        self._shield_var = tk.BooleanVar()
+        self._shield_var.set(False)
+        self._shield_cb = ttk.Checkbutton(self, variable=self._shield_var)
         self._shield_cb.grid(row=r, column=1, sticky='ew')
 
         r += 1
@@ -375,7 +377,9 @@ class AddCableFrame(BaseFrame):
         category = self._cat_entry.get().strip()
         type = self._type_entry.get().strip()
         gauge = self._gauge_cb.get().strip()
-        gauge_unit = self._gauge_cb.get().strip()
+        gauge_unit = 'awg'
+        length = self._length_entry.get().strip()
+        shield = self._shield_var.get()
 
         kwargs = {}
         if name:
@@ -390,12 +394,21 @@ class AddCableFrame(BaseFrame):
             kwargs['category'] = category
         if type:
             kwargs['type'] = type
-        if subtype:
-            kwargs['subtype'] = subtype
+        if gauge != '':
+            kwargs['gauge'] = gauge
+        if gauge_unit:
+            kwargs['gauge_unit'] = gauge_unit
+        if length:
+            try:
+                kwargs['length'] = float(length)
+            except ValueError as e:
+                showerror('Invalid Input', e)
+                return
+
+        kwargs['shield'] = shield
 
         self._wires_frame.update_all()
-        kwargs['pinnumbers'] = self._wires_frame.pin_numbers
-        kwargs['pinout'] = self._wires_frame.pinout
+        kwargs['colors'] = self._wires_frame.colors
 
         try:
             connector = Cable(**kwargs)
@@ -431,13 +444,13 @@ class WiresFrame(BaseFrame):
 
     @property
     def wire_numbers(self):
-        pin_numbers = [w.number for w in self._wire_frames]
+        wire_numbers = [w.number for w in self._wire_frames]
 
-        return pin_numbers
+        return wire_numbers
 
     @property
     def colors(self):
-        return [p.name for p in self._wire_frames]
+        return [p.color for p in self._wire_frames]
 
     def update_all(self):
         for pf in self._wire_frames:
@@ -470,7 +483,7 @@ class WireFrame(BaseFrame):
         super().__init__(parent, loglevel=loglevel)
 
         self._wire_number = wire_number
-        self._wire_name = wire_color
+        self._wire_color = wire_color
         self._on_delete_callback = on_delete_callback
 
         self._wire_number_entry = tk.Entry(self)
@@ -481,19 +494,19 @@ class WireFrame(BaseFrame):
         self._wire_color_cb = ttk.Combobox(self, values=list(color_full.keys()))
         self._wire_color_cb.grid(row=0, column=1, sticky='ew')
         self._wire_color_cb.insert(0, 'WH')
-        self._wire_color_cb.bind('<FocusOut>', lambda _: self._update_wire_name())
-        self._wire_color_cb.bind('<Return>', lambda _: self._update_wire_name())
+        self._wire_color_cb.bind('<FocusOut>', lambda _: self._update_wire_color())
+        self._wire_color_cb.bind('<Return>', lambda _: self._update_wire_color())
 
         self._x_label = tk.Label(self, text='X', **self._red)
         self._x_label.grid(row=0, column=2, sticky='ew')
         self._x_label.bind('<Button-1>', lambda _: self._delete())
 
         self._update_wire_number()
-        self._update_wire_name()
+        self._update_wire_color()
 
     def refresh(self):
         self._update_wire_number()
-        self._update_wire_name()
+        self._update_wire_color()
 
     def _update_wire_number(self):
         try:
@@ -511,19 +524,19 @@ class WireFrame(BaseFrame):
         if self._on_delete_callback is not None:
             self._on_delete_callback()
 
-    def _update_wire_name(self):
+    def _update_wire_color(self):
         value = self._wire_color_cb.get().strip()
         if value == '':
             self._wire_number_entry.delete(0, 'end')
-            self._wire_number_entry.insert(0, f'{self._wire_name}')
+            self._wire_number_entry.insert(0, f'{self._wire_color}')
             return
 
-        self._wire_name = value
+        self._wire_color = value
 
     @property
     def number(self):
         return self._wire_number
 
     @property
-    def name(self):
-        return self._wire_name
+    def color(self):
+        return self._wire_color
