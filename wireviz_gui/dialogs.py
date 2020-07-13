@@ -334,10 +334,16 @@ class AddCableFrame(BaseFrame):
         self._type_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
+        tk.Label(self, text='Gauge Unit:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._gauge_unit_cb = ttk.Combobox(self, values=['AWG', 'mm\u00B2'])
+        self._gauge_unit_cb.grid(row=r, column=1, sticky='ew')
+        self._gauge_unit_cb.bind('<<ComboboxSelected>>', lambda _: self._update_gauge_list())
+
+        r += 1
         tk.Label(self, text='Gauge:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        awg_list = [v for _, v in awg_equiv_table.items()]
-        self._gauge_cb = ttk.Combobox(self, values=awg_list)
+        self._gauge_cb = ttk.Combobox(self)
         self._gauge_cb.grid(row=r, column=1, sticky='ew')
         tk.Label(self, text='AWG', **self._normal).grid(row=r, column=2, sticky='ew')
 
@@ -372,6 +378,16 @@ class AddCableFrame(BaseFrame):
                   **self._normal)\
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
+    def _update_gauge_list(self):
+        gauge_unit = self._gauge_unit_cb.get().strip()
+
+        if gauge_unit == 'mm\u00B2':
+            gauge_list = [k for k, _ in awg_equiv_table.items()]
+        else:
+            gauge_list = [v for _, v in awg_equiv_table.items()]
+
+        self._gauge_cb['values'] = gauge_list
+
     def _save(self):
         name = self._name_entry.get().strip()
         manuf = self._manuf_entry.get().strip()
@@ -380,7 +396,7 @@ class AddCableFrame(BaseFrame):
         category = self._category_cb.get().strip()
         type = self._type_entry.get().strip()
         gauge = self._gauge_cb.get().strip()
-        gauge_unit = 'awg'
+        gauge_unit = self._gauge_unit_cb.get().strip()
         length = self._length_entry.get().strip()
         shield = self._shield_var.get()
 
