@@ -90,8 +90,8 @@ class AddConnectorFrame(BaseFrame):
         r += 1
         tk.Label(self, text='Category:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        self._cat_entry = tk.Entry(self)
-        self._cat_entry.grid(row=r, column=1, sticky='ew')
+        self._category_cb = ttk.Combobox(self, values=['ferrule'])
+        self._category_cb.grid(row=r, column=1, sticky='ew')
 
         r += 1
         tk.Label(self, text='Type:', **self._normal)\
@@ -126,18 +126,18 @@ class AddConnectorFrame(BaseFrame):
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
         ipm = self._ipm_entry.get().strip()
-        category = self._cat_entry.get().strip()
+        category = self._category_cb.get().strip()
         type = self._type_entry.get().strip()
         subtype = self._subtype_entry.get().strip()
 
         kwargs = {}
         if name:
             kwargs['name'] = name
-        if category:
+        if manuf:
             kwargs['manufacturer'] = manuf
-        if category:
+        if mpn:
             kwargs['manufacturer_part_number'] = mpn
-        if category:
+        if ipm:
             kwargs['internal_part_number'] = ipm
         if category:
             kwargs['category'] = category
@@ -384,11 +384,11 @@ class AddCableFrame(BaseFrame):
         kwargs = {}
         if name:
             kwargs['name'] = name
-        if category:
+        if manuf:
             kwargs['manufacturer'] = manuf
-        if category:
+        if mpn:
             kwargs['manufacturer_part_number'] = mpn
-        if category:
+        if ipm:
             kwargs['internal_part_number'] = ipm
         if category:
             kwargs['category'] = category
