@@ -606,32 +606,61 @@ class AddConnectionFrame(BaseFrame):
 
         r = 0
         tk.Label(self, text='Add Connection', **self._heading) \
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+            .grid(row=r, column=0, columnspan=3, sticky='ew')
 
-        connectors = [c.name for c in self._harness.connectors]
+        connectors = list(self._harness.connectors.keys())
+        cables = list(self._harness.cables.keys())
 
         r += 1
-        tk.Label(self, text='Connectors:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        self._connector_cb = ttk.Combobox(self)
-        self._connector_cb.grid(row=r, column=1, sticky='ew')
-        tk.Label(self, text='AWG', **self._normal).grid(row=r, column=2, sticky='ew')
+        tk.Label(self, text='From', **self._normal)\
+            .grid(row=r, column=0, sticky='ew')
+        tk.Label(self, text='Through', **self._normal)\
+            .grid(row=r, column=1, sticky='ew')
+        tk.Label(self, text='To', **self._normal)\
+            .grid(row=r, column=2, sticky='ew')
 
+        r += 1
+        self._from_connector_cb = ttk.Combobox(self, values=connectors)
+        self._from_connector_cb.grid(row=r, column=0, sticky='ew')
 
-        print('connectors')
-        for connector in self._harness.connectors:
-            print(connector)
+        self._through_cable_cb = ttk.Combobox(self, values=cables)
+        self._through_cable_cb.grid(row=r, column=1, sticky='ew')
 
+        self._to_connector_cb = ttk.Combobox(self, values=connectors)
+        self._to_connector_cb.grid(row=r, column=2, sticky='ew')
 
-        print('cables')
-        for cable in self._harness.cables:
-            print(cable)
+        r += 1
+        self._from_conn_pin_cb = ttk.Combobox(self)
+        self._from_conn_pin_cb.grid(row=r, column=0, sticky='ew')
+        self._from_connector_cb.bind(
+            '<<ComboboxSelected>>',
+            lambda _, fcb=self._from_connector_cb, pcb=self._from_conn_pin_cb: self._update_conn_pins(fcb, pcb))
+
+        self._through_cable_pin = ttk.Combobox(self)
+        self._through_cable_pin.grid(row=r, column=1, sticky='ew')
+        self._through_cable_cb.bind('<<ComboboxSelected>>', lambda _: self._update_through_cable_pins())
+
+        self._to_conn_pin_cb = ttk.Combobox(self)
+        self._to_conn_pin_cb.grid(row=r, column=2, sticky='ew')
+        self._to_connector_cb.bind(
+            '<<ComboboxSelected>>',
+            lambda _, fcb=self._to_connector_cb, pcb=self._to_conn_pin_cb: self._update_conn_pins(fcb, pcb))
 
         r += 1
         tk.Button(self, text='Save Connection',
                   command=self._save,
                   **self._normal)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+            .grid(row=r, column=0, columnspan=3, sticky='ew')
+
+    def _update_conn_pins(self, conn_cb, pin_cb):
+        key = conn_cb.get()
+        pins = self._harness.connectors[key].pinnumbers
+        pin_cb['values'] = pins
+
+    def _update_through_cable_pins(self):
+        name = self._through_cable_cb.get()
+        wire_numbers = [i+1 for i in range(self._harness.cables[name].wirecount)]
+        self._through_cable_pin['values'] = wire_numbers
 
     def _save(self):
         # todo: add connections
