@@ -4,7 +4,8 @@ from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
 import webbrowser
 
-from wireviz.DataClasses import Connector, Cable
+from wireviz.DataClasses import Connector, Cable, Connection
+from wireviz.Harness import Harness
 from wireviz.wv_colors import color_full
 from wireviz.wv_helper import awg_equiv_table
 
@@ -53,10 +54,12 @@ class AboutFrame(BaseFrame):
 
 class AddConnectorFrame(BaseFrame):
     def __init__(self, parent,
+                 harness: Harness,
                  on_save_callback: callable = None,
                  loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
+        self._harness = harness
         self._on_save_callback = on_save_callback
 
         r = 0
@@ -131,8 +134,6 @@ class AddConnectorFrame(BaseFrame):
         subtype = self._subtype_entry.get().strip()
 
         kwargs = {}
-        if name:
-            kwargs['name'] = name
         if manuf:
             kwargs['manufacturer'] = manuf
         if mpn:
@@ -151,13 +152,13 @@ class AddConnectorFrame(BaseFrame):
         kwargs['pinout'] = self._pins_frame.pinout
 
         try:
-            connector = Connector(**kwargs)
+            self._harness.add_connector(name, **kwargs)
         except Exception as e:
             showerror('Invalid Input', f'{e}')
             return
 
         if self._on_save_callback is not None:
-            self._on_save_callback(connector)
+            self._on_save_callback()
 
 
 class PinsFrame(BaseFrame):
@@ -284,10 +285,12 @@ class PinFrame(BaseFrame):
 
 class AddCableFrame(BaseFrame):
     def __init__(self, parent,
+                 harness: Harness,
                  on_save_callback: callable = None,
                  loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
+        self._harness = harness
         self._on_save_callback = on_save_callback
 
         r = 0
@@ -382,8 +385,6 @@ class AddCableFrame(BaseFrame):
         shield = self._shield_var.get()
 
         kwargs = {}
-        if name:
-            kwargs['name'] = name
         if manuf:
             kwargs['manufacturer'] = manuf
         if mpn:
@@ -411,13 +412,13 @@ class AddCableFrame(BaseFrame):
         kwargs['colors'] = self._wires_frame.colors
 
         try:
-            connector = Cable(**kwargs)
+            self._harness.add_cable(name, **kwargs)
         except Exception as e:
             showerror('Invalid Input', f'{e}')
             return
 
         if self._on_save_callback is not None:
-            self._on_save_callback(connector)
+            self._on_save_callback()
 
 
 class WiresFrame(BaseFrame):
@@ -540,3 +541,35 @@ class WireFrame(BaseFrame):
     @property
     def color(self):
         return self._wire_color
+
+
+class AddConnectionFrame(BaseFrame):
+    def __init__(self, parent,
+                 harness: Harness,
+                 on_save_callback: callable = None,
+                 loglevel=logging.INFO):
+        super().__init__(parent, loglevel=loglevel)
+
+        self._harness = harness
+        self._on_save_callback = on_save_callback
+
+        r = 0
+        tk.Label(self, text='Add Connection', **self._heading) \
+            .grid(row=r, column=0, columnspan=2, sticky='ew')
+
+
+
+        r += 1
+        tk.Button(self, text='Save Connection',
+                  command=self._save,
+                  **self._normal)\
+            .grid(row=r, column=0, columnspan=2, sticky='ew')
+
+    def _save(self):
+        # todo: add connections
+        #self._harness.connect(
+        #
+        #)
+
+        if self._on_save_callback is not None:
+            self._on_save_callback()
