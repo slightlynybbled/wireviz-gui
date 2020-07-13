@@ -321,8 +321,8 @@ class AddCableFrame(BaseFrame):
         r += 1
         tk.Label(self, text='Category:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
-        self._cat_entry = tk.Entry(self)
-        self._cat_entry.grid(row=r, column=1, sticky='ew')
+        self._category_cb = ttk.Combobox(self, values=['bundle'])
+        self._category_cb.grid(row=r, column=1, sticky='ew')
 
         r += 1
         tk.Label(self, text='Type:', **self._normal)\
@@ -374,7 +374,7 @@ class AddCableFrame(BaseFrame):
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
         ipm = self._ipm_entry.get().strip()
-        category = self._cat_entry.get().strip()
+        category = self._category_cb.get().strip()
         type = self._type_entry.get().strip()
         gauge = self._gauge_cb.get().strip()
         gauge_unit = 'awg'
