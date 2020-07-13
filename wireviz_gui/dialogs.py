@@ -13,6 +13,17 @@ from wireviz_gui._base import BaseFrame
 from wireviz_gui.images import logo
 
 
+def _name_is_duplicated(new_name, harness):
+    names = list([c for c in harness.connectors.keys()])
+    names += list([c for c in harness.cables.keys()])
+
+    if new_name in names:
+        showerror('Invalid Entry', '"Name" is duplicated')
+        return True
+
+    return False
+
+
 class AboutFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
@@ -71,6 +82,7 @@ class AddConnectorFrame(BaseFrame):
             .grid(row=r, column=0, sticky='e')
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky='ew')
+        self._name_entry.bind('<FocusOut>', lambda _: self._name_is_ok())
 
         r += 1
         tk.Label(self, text='Manufacturer:', **self._normal) \
@@ -124,7 +136,18 @@ class AddConnectorFrame(BaseFrame):
                   **self._normal)\
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
+    def _name_is_ok(self):
+        duplicated = _name_is_duplicated(
+            new_name=self._name_entry.get().strip(), harness=self._harness)
+
+        self.focus()
+
+        return not duplicated
+
     def _save(self):
+        if not self._name_is_ok():
+            return
+
         name = self._name_entry.get().strip()
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
@@ -302,6 +325,7 @@ class AddCableFrame(BaseFrame):
             .grid(row=r, column=0, sticky='e')
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky='ew')
+        self._name_entry.bind('<FocusOut>', lambda _: self._name_is_ok())
 
         r += 1
         tk.Label(self, text='Manufacturer:', **self._normal) \
@@ -388,7 +412,18 @@ class AddCableFrame(BaseFrame):
 
         self._gauge_cb['values'] = gauge_list
 
+    def _name_is_ok(self):
+        duplicated = _name_is_duplicated(
+            new_name=self._name_entry.get().strip(), harness=self._harness)
+
+        self.focus()
+
+        return not duplicated
+
     def _save(self):
+        if not self._name_is_ok():
+            return
+
         name = self._name_entry.get().strip()
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
@@ -573,7 +608,24 @@ class AddConnectionFrame(BaseFrame):
         tk.Label(self, text='Add Connection', **self._heading) \
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
+        connectors = [c.name for c in self._harness.connectors]
 
+        r += 1
+        tk.Label(self, text='Connectors:', **self._normal)\
+            .grid(row=r, column=0, sticky='e')
+        self._connector_cb = ttk.Combobox(self)
+        self._connector_cb.grid(row=r, column=1, sticky='ew')
+        tk.Label(self, text='AWG', **self._normal).grid(row=r, column=2, sticky='ew')
+
+
+        print('connectors')
+        for connector in self._harness.connectors:
+            print(connector)
+
+
+        print('cables')
+        for cable in self._harness.cables:
+            print(cable)
 
         r += 1
         tk.Button(self, text='Save Connection',
