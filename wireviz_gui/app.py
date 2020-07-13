@@ -1,5 +1,6 @@
 import logging
 from io import StringIO
+from pathlib import Path
 import tkinter as tk
 from tkinter.filedialog import asksaveasfilename
 from tkinter.messagebox import showerror
@@ -89,10 +90,8 @@ class InputOutputFrame(BaseFrame):
         top.title('Add Connector')
 
         def on_save():
-            print(self._harness)
-            print(self._harness.connectors)
-            [print(c) for c in self._harness.connectors]
             top.destroy()
+            self.refresh()
 
         AddConnectorFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -102,8 +101,8 @@ class InputOutputFrame(BaseFrame):
         top.title('Add Cable')
 
         def on_save():
-            print(self._harness)
             top.destroy()
+            self.refresh()
 
         AddCableFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -113,26 +112,38 @@ class InputOutputFrame(BaseFrame):
         top.title('Add Connection')
 
         def on_save():
-            print(self._harness)
             top.destroy()
+            self.refresh()
 
         AddConnectionFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
 
     def export_all(self):
+        self.refresh()
+
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
             return
 
-        try:
-            parse(
-                yaml_input=self._text_entry_frame.get(),
-                file_out=file_name
-            )
-        except ExecutableNotFound:
-            showerror('Error', 'Graphviz executable not found; Make sure that the '
-                               'executable is installed and in your system PATH')
+        path = Path(file_name)
+
+        if self._text_entry_frame.get().strip() != '':
+            try:
+                parse(
+                    yaml_input=self._text_entry_frame.get(),
+                    file_out=path
+                )
+            except ExecutableNotFound:
+                showerror('Error', 'Graphviz executable not found; Make sure that the '
+                                   'executable is installed and in your system PATH')
+                return
             return
+
+        self._harness.output(
+            filename=path,
+            fmt=('png', 'svg'),
+            view=False
+        )
 
     def refresh(self):
         """
@@ -140,31 +151,32 @@ class InputOutputFrame(BaseFrame):
 
         :return:
         """
+        if self._text_entry_frame.get().strip() != '':
+            f_in = StringIO(self._text_entry_frame.get())
 
-
-        f_in = StringIO(self._text_entry_frame.get())
-
-        try:
-            data = parse(f_in, return_types='png')
-        except (TypeError, ):
-            showerror('Parse Error', 'Input is invalid or missing')
-            return
-        except (ParserError, ScannerError) as e:
-            lines = str(e).lower()
-            for line in lines.split('\n'):
-                if 'line' in line:
-                    # determine the line number that has a problem
-                    parts = [l.strip() for l in line.split(',')]
-                    part = [l for l in parts if 'line' in l][0]
-                    error_line = part.split(' ')[1]
-                    self._text_entry_frame.highlight_line(error_line)
-                    break
-            showerror('Parse Error', f'Input is invalid: {e}')
-            return
-        except ExecutableNotFound:
-            showerror('Error', 'Graphviz executable not found; Make sure that the '
-                               'executable is installed and in your system PATH')
-            return
+            try:
+                data = parse(f_in, return_types='png')
+            except (TypeError, ):
+                showerror('Parse Error', 'Input is invalid or missing')
+                return
+            except (ParserError, ScannerError) as e:
+                lines = str(e).lower()
+                for line in lines.split('\n'):
+                    if 'line' in line:
+                        # determine the line number that has a problem
+                        parts = [l.strip() for l in line.split(',')]
+                        part = [l for l in parts if 'line' in l][0]
+                        error_line = part.split(' ')[1]
+                        self._text_entry_frame.highlight_line(error_line)
+                        break
+                showerror('Parse Error', f'Input is invalid: {e}')
+                return
+            except ExecutableNotFound:
+                showerror('Error', 'Graphviz executable not found; Make sure that the '
+                                   'executable is installed and in your system PATH')
+                return
+        else:
+            data = self._harness.png
 
         photo = ImageTk.PhotoImage(data=data)
 
