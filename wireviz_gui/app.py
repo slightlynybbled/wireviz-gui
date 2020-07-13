@@ -127,8 +127,7 @@ class InputOutputFrame(BaseFrame):
         try:
             parse(
                 yaml_input=self._text_entry_frame.get(),
-                file_out=file_name,
-                generate_bom=True,
+                file_out=file_name
             )
         except ExecutableNotFound:
             showerror('Error', 'Graphviz executable not found; Make sure that the '
@@ -141,6 +140,8 @@ class InputOutputFrame(BaseFrame):
 
         :return:
         """
+
+
         f_in = StringIO(self._text_entry_frame.get())
 
         try:
