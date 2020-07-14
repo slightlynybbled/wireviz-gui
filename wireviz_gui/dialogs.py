@@ -171,19 +171,15 @@ class AddConnectorFrame(BaseFrame):
             kwargs['subtype'] = subtype
 
         self._pins_frame.update_all()
-        #kwargs['pinnumbers'] = self._pins_frame.pin_numbers
+        kwargs['pinnumbers'] = self._pins_frame.pin_numbers
         kwargs['pinout'] = self._pins_frame.pinout
         kwargs['pincount'] = len(self._pins_frame.pin_numbers)
-
-        print(kwargs)
 
         try:
             self._harness.add_connector(name, **kwargs)
         except Exception as e:
             showerror('Invalid Input', f'{e}')
             return
-
-        print(self._harness.connectors)
 
         if self._on_save_callback is not None:
             self._on_save_callback()
@@ -673,8 +669,6 @@ class AddConnectionFrame(BaseFrame):
         self._through_cable_pin['values'] = wire_numbers
 
     def _save(self):
-        print(self._harness.connectors)
-
         data = {}
         data['from_name'] = self._from_connector_cb.get()
         data['via_name'] = self._through_cable_cb.get()
