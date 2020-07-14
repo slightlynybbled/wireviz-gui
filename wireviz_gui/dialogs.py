@@ -103,12 +103,6 @@ class AddConnectorFrame(BaseFrame):
         self._ipm_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
-        tk.Label(self, text='Category:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        self._category_cb = ttk.Combobox(self, values=['ferrule'])
-        self._category_cb.grid(row=r, column=1, sticky='ew')
-
-        r += 1
         tk.Label(self, text='Type:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
         self._type_entry = tk.Entry(self)
@@ -152,7 +146,6 @@ class AddConnectorFrame(BaseFrame):
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
         ipm = self._ipm_entry.get().strip()
-        category = self._category_cb.get().strip()
         type = self._type_entry.get().strip()
         subtype = self._subtype_entry.get().strip()
 
@@ -163,8 +156,6 @@ class AddConnectorFrame(BaseFrame):
             kwargs['manufacturer_part_number'] = mpn
         if ipm:
             kwargs['internal_part_number'] = ipm
-        if category:
-            kwargs['category'] = category
         if type:
             kwargs['type'] = type
         if subtype:
@@ -347,12 +338,6 @@ class AddCableFrame(BaseFrame):
         self._ipm_entry.grid(row=r, column=1, sticky='ew')
 
         r += 1
-        tk.Label(self, text='Category:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        self._category_cb = ttk.Combobox(self, values=['bundle'])
-        self._category_cb.grid(row=r, column=1, sticky='ew')
-
-        r += 1
         tk.Label(self, text='Type:', **self._normal)\
             .grid(row=r, column=0, sticky='e')
         self._type_entry = tk.Entry(self)
@@ -429,7 +414,6 @@ class AddCableFrame(BaseFrame):
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
         ipm = self._ipm_entry.get().strip()
-        category = self._category_cb.get().strip()
         type = self._type_entry.get().strip()
         gauge = self._gauge_cb.get().strip()
         gauge_unit = self._gauge_unit_cb.get().strip()
@@ -443,8 +427,6 @@ class AddCableFrame(BaseFrame):
             kwargs['manufacturer_part_number'] = mpn
         if ipm:
             kwargs['internal_part_number'] = ipm
-        if category:
-            kwargs['category'] = category
         if type:
             kwargs['type'] = type
         if gauge != '':
