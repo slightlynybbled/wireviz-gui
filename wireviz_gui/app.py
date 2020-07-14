@@ -77,13 +77,17 @@ class InputOutputFrame(BaseFrame):
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._text_entry_frame = TextEntryFrame(self,
-                                                on_update_callback=self.refresh)
-        self._text_entry_frame.grid(row=1, column=0, sticky='ew')
+        self._structure_view_frame = StructureViewFrame(self, harness=self._harness)
+        self._structure_view_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._harness_frame = HarnessViewFrame(self)
-        self._harness_frame.grid(row=r, column=0, sticky='ew')
+        self._text_entry_frame = TextEntryFrame(self,
+                                                on_update_callback=self.refresh)
+        self._text_entry_frame.grid(row=r, column=0, sticky='ew')
+
+        r += 1
+        self._harness_view_frame = HarnessViewFrame(self)
+        self._harness_view_frame.grid(row=r, column=0, sticky='ew')
 
     def add_connector(self):
         top = ToplevelBase(self)
@@ -180,10 +184,41 @@ class InputOutputFrame(BaseFrame):
 
         photo = ImageTk.PhotoImage(data=data)
 
-        self._harness_frame\
+        self._harness_view_frame\
             .update_image(photo_image=photo)
 
         self._text_entry_frame.highlight_line(None)
+
+        self._structure_view_frame.refresh()
+
+
+class StructureViewFrame(BaseFrame):
+    def __init__(self, parent, harness: Harness, loglevel=logging.INFO):
+        super().__init__(parent=parent, loglevel=loglevel)
+
+        self._harness = harness
+
+        tk.Label(self, text='(no elements)', **self._normal)\
+            .grid(row=0, column=0, sticky='ew')
+
+    def refresh(self):
+        if self._harness.connectors == {} and self._harness.cables == {}:
+            # a nag screen; todo: replace when wireviz is updated so
+            # that parse will return an instance of `Harness`
+            showerror('Input Error', 'There appears to be no data in the '
+                                     '`Harness` instance; Perhaps the '
+                                     'instance is blank?')
+
+        c = 0
+        for connector in self._harness.connectors:
+            conn_label = tk.Label(self, text=f'{connector}', **self._normal)
+            conn_label.grid(row=0, column=c, sticky='ew')
+            c += 1
+
+        for cable in self._harness.cables:
+            cable_label = tk.Label(self, text=f'{cable}', **self._normal)
+            cable_label.grid(row=0, column=c, sticky='ew')
+            c += 1
 
 
 class ButtonFrame(BaseFrame):
