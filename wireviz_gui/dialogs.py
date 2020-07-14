@@ -66,11 +66,13 @@ class AboutFrame(BaseFrame):
 class AddConnectorFrame(BaseFrame):
     def __init__(self, parent,
                  harness: Harness,
+                 connector_name: str = None,
                  on_save_callback: callable = None,
                  loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
         self._harness = harness
+        self._connector_name = connector_name
         self._on_save_callback = on_save_callback
 
         r = 0
@@ -82,7 +84,6 @@ class AddConnectorFrame(BaseFrame):
             .grid(row=r, column=0, sticky='e')
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky='ew')
-        self._name_entry.bind('<FocusOut>', lambda _: self._name_is_ok())
 
         r += 1
         tk.Label(self, text='Manufacturer:', **self._normal) \
@@ -130,18 +131,39 @@ class AddConnectorFrame(BaseFrame):
                   **self._normal)\
             .grid(row=r, column=0, columnspan=2, sticky='ew')
 
-    def _name_is_ok(self):
-        duplicated = _name_is_duplicated(
-            new_name=self._name_entry.get().strip(), harness=self._harness)
+        if self._connector_name is not None:
+            r += 1
+            tk.Button(self, text='Delete Connector',
+                      command=self._delete,
+                      **self._normal) \
+                .grid(row=r, column=0, columnspan=2, sticky='ew')
+            self._load()
 
-        self.focus()
+    def _delete(self):
+        self._harness.connectors.pop(self._connector_name)
+        if self._on_save_callback is not None:
+            self._on_save_callback()
 
-        return not duplicated
+    def _load(self):
+        connector = self._harness.connectors[self._connector_name]
+        self._name_entry.insert(0, f'{connector.name}')
+        self._name_entry.config(state='disabled')
+
+        if connector.manufacturer is not None:
+            self._manuf_entry.insert(0, connector.manufacturer)
+        if connector.manufacturer_part_number is not None:
+            self._mpn_entry.insert(0, connector.manufacturer_part_number)
+        if connector.internal_part_number is not None:
+            self._ipm_entry.insert(0, connector.internal_part_number)
+        if connector.type is not None:
+            self._type_entry.insert(0, connector.type)
+        if connector.subtype is not None:
+            self._subtype_entry.insert(0, connector.subtype)
+
+        # load PinsFrame
+        self._pins_frame.load(connector.pinnumbers, connector.pinout)
 
     def _save(self):
-        if not self._name_is_ok():
-            return
-
         name = self._name_entry.get().strip()
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()
@@ -207,6 +229,13 @@ class PinsFrame(BaseFrame):
     @property
     def pinout(self):
         return [p.name for p in self._pin_frames]
+
+    def load(self, pinnumbers, pinout):
+        for num, name in zip(pinnumbers, pinout):
+            self._pin_frames.append(
+                PinFrame(self, pin_number=num, pin_name=name, on_delete_callback=self._redraw)
+            )
+        self._redraw()
 
     def update_all(self):
         for pf in self._pin_frames:
@@ -317,7 +346,6 @@ class AddCableFrame(BaseFrame):
             .grid(row=r, column=0, sticky='e')
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky='ew')
-        self._name_entry.bind('<FocusOut>', lambda _: self._name_is_ok())
 
         r += 1
         tk.Label(self, text='Manufacturer:', **self._normal) \
@@ -398,18 +426,7 @@ class AddCableFrame(BaseFrame):
 
         self._gauge_cb['values'] = gauge_list
 
-    def _name_is_ok(self):
-        duplicated = _name_is_duplicated(
-            new_name=self._name_entry.get().strip(), harness=self._harness)
-
-        self.focus()
-
-        return not duplicated
-
     def _save(self):
-        if not self._name_is_ok():
-            return
-
         name = self._name_entry.get().strip()
         manuf = self._manuf_entry.get().strip()
         mpn = self._mpn_entry.get().strip()

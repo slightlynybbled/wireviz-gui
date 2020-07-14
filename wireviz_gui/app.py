@@ -7,8 +7,9 @@ from tkinter.messagebox import showerror
 
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
-from wireviz.wireviz import parse
+from wireviz.DataClasses import Cable, Connector
 from wireviz.Harness import Harness
+from wireviz.wireviz import parse
 from yaml.parser import ParserError
 from yaml.scanner import ScannerError
 
@@ -77,7 +78,9 @@ class InputOutputFrame(BaseFrame):
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._structure_view_frame = StructureViewFrame(self, harness=self._harness)
+        self._structure_view_frame = StructureViewFrame(self,
+                                                        on_update_callback=self.refresh,
+                                                        harness=self._harness)
         self._structure_view_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
@@ -188,37 +191,64 @@ class InputOutputFrame(BaseFrame):
             .update_image(photo_image=photo)
 
         self._text_entry_frame.highlight_line(None)
-
         self._structure_view_frame.refresh()
 
 
 class StructureViewFrame(BaseFrame):
-    def __init__(self, parent, harness: Harness, loglevel=logging.INFO):
+    def __init__(self, parent, harness: Harness,
+                 on_update_callback: callable = None, loglevel=logging.INFO):
         super().__init__(parent=parent, loglevel=loglevel)
 
         self._harness = harness
+        self._on_update_callback = on_update_callback
 
-        tk.Label(self, text='(no elements)', **self._normal)\
+        self.refresh(False)
+
+    def _load_connector_dialog(self, connector: Connector):
+        top = ToplevelBase(self)
+        top.title('Add Connector')
+
+        def on_save():
+            top.destroy()
+            self.refresh(True)
+
+        AddConnectorFrame(top,
+                          harness=self._harness,
+                          connector_name=str(connector),
+                          on_save_callback=on_save).grid()
+
+    def refresh(self, execute_callback: bool = False):
+        for child in self.winfo_children():
+            child.destroy()
+
+        tk.Label(self, text='Harness Elements:', **self._normal)\
             .grid(row=0, column=0, sticky='ew')
 
-    def refresh(self):
         if self._harness.connectors == {} and self._harness.cables == {}:
             # a nag screen; todo: replace when wireviz is updated so
             # that parse will return an instance of `Harness`
-            showerror('Input Error', 'There appears to be no data in the '
-                                     '`Harness` instance; Perhaps the '
-                                     'instance is blank?')
+            self._logger.warning('There appears to be no data in the '
+                                 '`Harness` instance; Perhaps the '
+                                 'instance is blank?')
+            tk.Label(self, text='(none)', **self._normal) \
+                .grid(row=0, column=1, sticky='ew')
 
-        c = 0
+        c = 1
         for connector in self._harness.connectors:
-            conn_label = tk.Label(self, text=f'{connector}', **self._normal)
+            conn_label = tk.Label(self, text=f'{connector}', **self._link)
             conn_label.grid(row=0, column=c, sticky='ew')
+            conn_label.bind('<Button-1>',
+                            lambda _, cl=connector: self._load_connector_dialog(cl))
             c += 1
 
         for cable in self._harness.cables:
-            cable_label = tk.Label(self, text=f'{cable}', **self._normal)
+            cable_label = tk.Label(self, text=f'{cable}', **self._link)
             cable_label.grid(row=0, column=c, sticky='ew')
+            cable_label.bind('<Button-1>', lambda _, cb=cable: print(cb))
             c += 1
+
+        if execute_callback and self._on_update_callback is not None:
+            self._on_update_callback()
 
 
 class ButtonFrame(BaseFrame):
