@@ -511,7 +511,7 @@ class WiresFrame(BaseFrame):
 
     def update_all(self):
         for pf in self._wire_frames:
-            pf.refresh()
+            pf.parse_text()
 
     def add_wire(self):
         if len(self._wire_frames) > 0:

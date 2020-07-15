@@ -40,7 +40,7 @@ class Application(tk.Tk):
         self._io_frame.grid(row=r, column=0, sticky='ew')
 
         self._menu = Menu(self, export_all=self._io_frame.export_all,
-                          refresh=self._io_frame.refresh, about=self._about)
+                          refresh=self._io_frame.parse_text, about=self._about)
         self.config(menu=self._menu)
 
         self.mainloop()
@@ -74,18 +74,18 @@ class InputOutputFrame(BaseFrame):
                                          on_click_add_cable=self.add_cable,
                                          on_click_add_connection=self.add_connection,
                                          on_click_export=self.export_all,
-                                         on_click_refresh=self.refresh)
+                                         on_click_refresh=self.refresh_view)
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._structure_view_frame = StructureViewFrame(self,
-                                                        on_update_callback=self.refresh,
+                                                        on_update_callback=self.refresh_view,
                                                         harness=self._harness)
         self._structure_view_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._text_entry_frame = TextEntryFrame(self,
-                                                on_update_callback=self.refresh)
+                                                on_update_callback=self.parse_text)
         self._text_entry_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
@@ -98,7 +98,7 @@ class InputOutputFrame(BaseFrame):
 
         def on_save():
             top.destroy()
-            self.refresh()
+            self.refresh_view()
 
         AddConnectorFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -109,7 +109,7 @@ class InputOutputFrame(BaseFrame):
 
         def on_save():
             top.destroy()
-            self.refresh()
+            self.refresh_view()
 
         AddCableFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -120,13 +120,13 @@ class InputOutputFrame(BaseFrame):
 
         def on_save():
             top.destroy()
-            self.refresh()
+            self.refresh_view()
 
         AddConnectionFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
 
     def export_all(self):
-        self.refresh()
+        self.refresh_view()
 
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
@@ -152,7 +152,7 @@ class InputOutputFrame(BaseFrame):
             view=False
         )
 
-    def refresh(self):
+    def parse_text(self):
         """
         This is where the data is read from the text entry and parsed into an image
 
@@ -162,7 +162,7 @@ class InputOutputFrame(BaseFrame):
             f_in = StringIO(self._text_entry_frame.get())
 
             try:
-                data = parse(f_in, return_types='png')
+                harness = parse(f_in, return_types='harness')
             except (TypeError, ):
                 showerror('Parse Error', 'Input is invalid or missing')
                 return
@@ -182,15 +182,26 @@ class InputOutputFrame(BaseFrame):
                 showerror('Error', 'Graphviz executable not found; Make sure that the '
                                    'executable is installed and in your system PATH')
                 return
-        else:
-            data = self._harness.png
 
-        photo = ImageTk.PhotoImage(data=data)
+            # copy the attributes of the new harness
+            self._harness.connectors = harness.connectors
+            self._harness.cables = harness.cables
+            self._additional_bom_items = harness.additional_bom_items
+
+        self._text_entry_frame.highlight_line(None)
+
+        self.refresh_view()
+
+    def refresh_view(self):
+        try:
+            photo = ImageTk.PhotoImage(data=self._harness.png)
+        except KeyError:
+            showerror('Graph Creation Error', 'There was an error parsing the last request')
+            return
 
         self._harness_view_frame\
             .update_image(photo_image=photo)
 
-        self._text_entry_frame.highlight_line(None)
         self._structure_view_frame.refresh()
 
 
