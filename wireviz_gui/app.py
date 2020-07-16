@@ -74,7 +74,7 @@ class InputOutputFrame(BaseFrame):
                                          on_click_add_cable=self.add_cable,
                                          on_click_add_connection=self.add_connection,
                                          on_click_export=self.export_all,
-                                         on_click_refresh=self.refresh_view)
+                                         on_click_refresh=self.parse_text)
         self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
