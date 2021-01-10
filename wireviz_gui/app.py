@@ -7,6 +7,7 @@ from tkinter.messagebox import showerror
 
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
+from tk_tools import ToolTip
 from wireviz.DataClasses import Cable, Connector
 from wireviz.Harness import Harness
 from wireviz.wireviz import parse
@@ -75,13 +76,15 @@ class InputOutputFrame(BaseFrame):
                                          on_click_add_connection=self.add_connection,
                                          on_click_export=self.export_all,
                                          on_click_refresh=self.parse_text)
-        self._button_frame.grid(row=r, column=0, sticky='ew')
+        # todo: re-enable when buttons and dialogs are working better
+        # self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._structure_view_frame = StructureViewFrame(self,
                                                         on_update_callback=self.refresh_view,
                                                         harness=self._harness)
-        self._structure_view_frame.grid(row=r, column=0, sticky='ew')
+        # todo: re-enable when structure view is working better
+        # self._structure_view_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._text_entry_frame = TextEntryFrame(self,
@@ -274,28 +277,33 @@ class ButtonFrame(BaseFrame):
 
         c = 0
         self._add_conn_img = tk.PhotoImage(data=add_box_fill)
-        tk.Button(self, image=self._add_conn_img, command=on_click_add_connector)\
-            .grid(row=0, column=c, sticky='ew')
+        add_conn_btn = tk.Button(self, image=self._add_conn_img, command=on_click_add_connector)
+        add_conn_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(add_conn_btn, 'Add Connector')
 
         c += 1
         self._add_cable_img = tk.PhotoImage(data=add_circle_fill)
-        tk.Button(self, image=self._add_cable_img, command=on_click_add_cable)\
-            .grid(row=0, column=c, sticky='ew')
+        add_cable_btn = tk.Button(self, image=self._add_cable_img, command=on_click_add_cable)
+        add_cable_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(add_cable_btn, 'Add Cable')
 
         c += 1
         self._add_connect_img = tk.PhotoImage(data=links_fill)
-        tk.Button(self, image=self._add_connect_img, command=on_click_add_connection)\
-            .grid(row=0, column=c, sticky='ew')
+        add_connection_btn = tk.Button(self, image=self._add_connect_img, command=on_click_add_connection)
+        add_connection_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(add_connection_btn, 'Add Connection')
 
         c += 1
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
-        tk.Button(self, image=self._export_img, command=on_click_export)\
-            .grid(row=0, column=c, sticky='ew')
+        export_img_btn = tk.Button(self, image=self._export_img, command=on_click_export)
+        export_img_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(export_img_btn, 'Export Image')
 
         c += 1
         self._refresh_img = tk.PhotoImage(data=refresh_fill)
-        tk.Button(self, image=self._refresh_img, command=on_click_refresh, **self._heading)\
-            .grid(row=0, column=c, sticky='ew')
+        refresh_img_btn = tk.Button(self, image=self._refresh_img, command=on_click_refresh, **self._heading)
+        refresh_img_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(refresh_img_btn, 'Refresh Image')
 
 
 class TextEntryFrame(BaseFrame):

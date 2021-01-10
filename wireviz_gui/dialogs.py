@@ -6,7 +6,7 @@ import webbrowser
 
 from wireviz.DataClasses import Connector, Cable, Connection
 from wireviz.Harness import Harness
-from wireviz.wv_colors import color_full
+#from wireviz.wv_colors import color_full
 from wireviz.wv_helper import awg_equiv_table
 
 from wireviz_gui._base import BaseFrame
@@ -161,7 +161,7 @@ class AddConnectorFrame(BaseFrame):
             self._subtype_entry.insert(0, connector.subtype)
 
         # load PinsFrame
-        self._pins_frame.load(connector.pinnumbers, connector.pinout)
+        self._pins_frame.load(connector.pinlabels, connector.pinout)
 
     def _save(self):
         name = self._name_entry.get().strip()
@@ -184,8 +184,7 @@ class AddConnectorFrame(BaseFrame):
             kwargs['subtype'] = subtype
 
         self._pins_frame.update_all()
-        kwargs['pinnumbers'] = self._pins_frame.pin_numbers
-        kwargs['pinout'] = self._pins_frame.pinout
+        kwargs['pinlabels'] = self._pins_frame.pin_numbers
         kwargs['pincount'] = len(self._pins_frame.pin_numbers)
 
         try:
@@ -230,8 +229,8 @@ class PinsFrame(BaseFrame):
     def pinout(self):
         return [p.name for p in self._pin_frames]
 
-    def load(self, pinnumbers, pinout):
-        for num, name in zip(pinnumbers, pinout):
+    def load(self, pinlabels, pinout):
+        for num, name in zip(pinlabels, pinout):
             self._pin_frames.append(
                 PinFrame(self, pin_number=num, pin_name=name, on_delete_callback=self._redraw)
             )
@@ -511,7 +510,7 @@ class WiresFrame(BaseFrame):
 
     def update_all(self):
         for pf in self._wire_frames:
-            pf.parse_text()
+            pf.refresh()
 
     def add_wire(self):
         if len(self._wire_frames) > 0:
@@ -548,7 +547,8 @@ class WireFrame(BaseFrame):
         self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_wire_number())
         self._wire_number_entry.bind('<Return>', lambda _: self._update_wire_number())
 
-        self._wire_color_cb = ttk.Combobox(self, values=list(color_full.keys()))
+        #self._wire_color_cb = ttk.Combobox(self, values=list(color_full.keys()))
+        self._wire_color_cb = ttk.Combobox(self)
         self._wire_color_cb.grid(row=0, column=1, sticky='ew')
         self._wire_color_cb.insert(0, 'WH')
         self._wire_color_cb.bind('<FocusOut>', lambda _: self._update_wire_color())
@@ -659,7 +659,7 @@ class AddConnectionFrame(BaseFrame):
 
     def _update_conn_pins(self, conn_cb, pin_cb):
         key = conn_cb.get()
-        pins = self._harness.connectors[key].pinnumbers
+        pins = self._harness.connectors[key].pinlabels
         pin_cb['values'] = pins
 
     def _update_through_cable_pins(self):
@@ -687,6 +687,8 @@ class AddConnectionFrame(BaseFrame):
             data['to_pin'] = int(self._to_conn_pin_cb.get())
         except ValueError:
             data['to_pin'] = self._to_conn_pin_cb.get()
+
+        print('harness data: ', data)
 
         # add connections
         self._harness.connect(**data)
