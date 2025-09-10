@@ -8,11 +8,9 @@ from tkinter.messagebox import showerror
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
 from tk_tools import ToolTip
-from wireviz.DataClasses import Cable, Connector
-from wireviz.Harness import Harness
-from wireviz.wireviz import parse
-from yaml.parser import ParserError
-from yaml.scanner import ScannerError
+from wireviz.wireviz import Harness, parse
+from wireviz.DataClasses import Connector, Cable
+from yaml import YAMLError
 
 from wireviz_gui._base import BaseFrame, ToplevelBase
 from wireviz_gui.dialogs import AboutFrame, AddCableFrame, AddConnectionFrame, AddConnectorFrame
@@ -129,47 +127,48 @@ class InputOutputFrame(BaseFrame):
             .grid()
 
     def export_all(self):
-        self.refresh_view()
-
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
             return
 
         path = Path(file_name)
+        yaml_input = self._text_entry_frame.get()
 
-        if self._text_entry_frame.get().strip() != '':
+        if yaml_input.strip() != '':
             try:
                 parse(
-                    yaml_input=self._text_entry_frame.get(),
-                    file_out=path
+                    inp=yaml_input,
+                    output_dir=path.parent,
+                    output_name=path.stem,
+                    output_formats=('png', 'svg', 'html'),
                 )
-            except ExecutableNotFound:
+            except (ExecutableNotFound, FileNotFoundError):
                 showerror('Error', 'Graphviz executable not found; Make sure that the '
                                    'executable is installed and in your system PATH')
                 return
-            return
-
-        self._harness.output(
-            filename=path,
-            fmt=('png', 'svg'),
-            view=False
-        )
+            except Exception as e:
+                showerror('Error', f'An unexpected error occurred:\n{e}')
+                return
 
     def parse_text(self):
         """
         This is where the data is read from the text entry and parsed into an image
-
         :return:
         """
-        if self._text_entry_frame.get().strip() != '':
-            f_in = StringIO(self._text_entry_frame.get())
-
+        yaml_input = self._text_entry_frame.get()
+        if yaml_input.strip() != '':
             try:
-                harness = parse(f_in, return_types='harness')
-            except (TypeError, ):
-                showerror('Parse Error', 'Input is invalid or missing')
-                return
-            except (ParserError, ScannerError) as e:
+                png_data, new_harness = parse(
+                    inp=yaml_input,
+                    return_types=('png', 'harness')
+                )
+                self._harness.connectors = new_harness.connectors
+                self._harness.cables = new_harness.cables
+                self._harness.mates = new_harness.mates
+                self._harness.additional_bom_items = new_harness.additional_bom_items
+
+                self.refresh_view(png_data)
+            except YAMLError as e:
                 lines = str(e).lower()
                 for line in lines.split('\n'):
                     if 'line' in line:
@@ -181,29 +180,24 @@ class InputOutputFrame(BaseFrame):
                         break
                 showerror('Parse Error', f'Input is invalid: {e}')
                 return
-            except ExecutableNotFound:
+            except (ExecutableNotFound, FileNotFoundError):
                 showerror('Error', 'Graphviz executable not found; Make sure that the '
                                    'executable is installed and in your system PATH')
                 return
-
-            # copy the attributes of the new harness
-            self._harness.connectors = harness.connectors
-            self._harness.cables = harness.cables
-            self._additional_bom_items = harness.additional_bom_items
+            except Exception as e:
+                showerror('Error', f'An unexpected error occurred:\n{e}')
+                return
 
         self._text_entry_frame.highlight_line(None)
 
-        self.refresh_view()
-
-    def refresh_view(self):
-        try:
-            photo = ImageTk.PhotoImage(data=self._harness.png)
-        except KeyError:
-            showerror('Graph Creation Error', 'There was an error parsing the last request')
-            return
-
-        self._harness_view_frame\
-            .update_image(photo_image=photo)
+    def refresh_view(self, png_data=None):
+        if png_data:
+            try:
+                photo = ImageTk.PhotoImage(data=png_data)
+                self._harness_view_frame.update_image(photo_image=photo)
+            except Exception as e:
+                showerror('Graph Creation Error', f'There was an error parsing the last request: {e}')
+                return
 
         self._structure_view_frame.refresh()
 
