@@ -14,6 +14,7 @@ from yaml import YAMLError
 
 from wireviz_gui._base import BaseFrame, ToplevelBase
 from wireviz_gui.dialogs import AboutFrame, AddCableFrame, AddConnectionFrame, AddConnectorFrame
+from wireviz_gui.mating_dialog import AddMateDialog
 from wireviz_gui.images import *
 from wireviz_gui.menus import Menu
 
@@ -72,10 +73,11 @@ class InputOutputFrame(BaseFrame):
                                          on_click_add_connector=self.add_connector,
                                          on_click_add_cable=self.add_cable,
                                          on_click_add_connection=self.add_connection,
+                                         on_click_add_mate=self.add_mate,
                                          on_click_export=self.export_all,
                                          on_click_refresh=self.parse_text)
         # todo: re-enable when buttons and dialogs are working better
-        # self._button_frame.grid(row=r, column=0, sticky='ew')
+        self._button_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
         self._structure_view_frame = StructureViewFrame(self,
@@ -126,6 +128,35 @@ class InputOutputFrame(BaseFrame):
         AddConnectionFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
 
+    def add_mate(self):
+        import yaml
+        top = ToplevelBase(self)
+        top.title('Mate Connectors')
+
+        def on_save(yaml_snippet):
+            current_text = self._text_entry_frame.get()
+            try:
+                data = yaml.safe_load(current_text) or {}
+                if 'connections' not in data:
+                    data['connections'] = []
+
+                new_connection = yaml.safe_load(yaml_snippet)
+                data['connections'].append(new_connection[0])
+
+                # Clear the text entry and insert the updated YAML
+                self._text_entry_frame.clear()
+                self._text_entry_frame.append(yaml.dump(data, default_flow_style=False, sort_keys=False))
+
+            except yaml.YAMLError as e:
+                showerror('YAML Error', f'Error processing existing YAML: {e}')
+                return
+
+            top.destroy()
+            self.parse_text()
+
+        AddMateDialog(top, harness=self._harness, on_save_callback=on_save)\
+            .grid()
+
     def export_all(self):
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
@@ -164,6 +195,7 @@ class InputOutputFrame(BaseFrame):
                 )
                 self._harness.connectors = new_harness.connectors
                 self._harness.cables = new_harness.cables
+                self._harness.connections = new_harness.connections
                 self._harness.mates = new_harness.mates
                 self._harness.additional_bom_items = new_harness.additional_bom_items
 
@@ -264,6 +296,7 @@ class ButtonFrame(BaseFrame):
                  on_click_add_connector: callable,
                  on_click_add_cable: callable,
                  on_click_add_connection: callable,
+                 on_click_add_mate: callable,
                  on_click_export: callable,
                  on_click_refresh: callable,
                  loglevel=logging.INFO):
@@ -286,6 +319,12 @@ class ButtonFrame(BaseFrame):
         add_connection_btn = tk.Button(self, image=self._add_connect_img, command=on_click_add_connection)
         add_connection_btn.grid(row=0, column=c, sticky='ew')
         ToolTip(add_connection_btn, 'Add Connection')
+
+        c += 1
+        self._add_mate_img = tk.PhotoImage(data=links_fill)
+        add_mate_btn = tk.Button(self, image=self._add_mate_img, command=on_click_add_mate)
+        add_mate_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(add_mate_btn, 'Mate Connectors')
 
         c += 1
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
@@ -320,6 +359,12 @@ class TextEntryFrame(BaseFrame):
 
     def get(self):
         return self._text.get('1.0', 'end')
+
+    def append(self, text: str):
+        self._text.insert('end', text)
+
+    def clear(self):
+        self._text.delete('1.0', 'end')
 
     def highlight_line(self, line_number: str):
         self._text.tag_remove('highlight', f'0.0', 'end')
