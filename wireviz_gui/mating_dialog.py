@@ -4,7 +4,7 @@ from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
 import webbrowser
 
-from wireviz.Harness import Harness
+from wireviz.wireviz import Harness
 
 from wireviz_gui._base import BaseFrame
 
