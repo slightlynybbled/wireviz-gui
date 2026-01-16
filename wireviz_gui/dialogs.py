@@ -5,7 +5,7 @@ import tkinter.ttk as ttk
 import webbrowser
 
 from wireviz.DataClasses import Connector, Cable, Connection
-from wireviz.Harness import Harness
+from wireviz.wireviz import Harness
 #from wireviz.wv_colors import color_full
 from wireviz.wv_helper import awg_equiv_table
 

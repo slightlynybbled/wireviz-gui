@@ -9,7 +9,7 @@ from graphviz import ExecutableNotFound
 from PIL import ImageTk
 from tk_tools import ToolTip
 from wireviz.wireviz import Harness, parse
-from wireviz.DataClasses import Connector, Cable
+from wireviz.DataClasses import Connector, Cable, Metadata, Options, Tweak
 from yaml import YAMLError
 
 from wireviz_gui._base import BaseFrame, ToplevelBase
@@ -66,7 +66,7 @@ class InputOutputFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
-        self._harness = Harness()
+        self._harness = Harness(Metadata(), Options(), Tweak())
 
         r = 0
         self._button_frame = ButtonFrame(self,
