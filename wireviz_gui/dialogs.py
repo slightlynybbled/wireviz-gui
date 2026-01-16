@@ -175,9 +175,9 @@ class AddConnectorFrame(BaseFrame):
         if manuf:
             kwargs['manufacturer'] = manuf
         if mpn:
-            kwargs['manufacturer_part_number'] = mpn
+            kwargs['mpn'] = mpn
         if ipm:
-            kwargs['internal_part_number'] = ipm
+            kwargs['pn'] = ipm
         if type:
             kwargs['type'] = type
         if subtype:
@@ -440,19 +440,24 @@ class AddCableFrame(BaseFrame):
         if manuf:
             kwargs['manufacturer'] = manuf
         if mpn:
-            kwargs['manufacturer_part_number'] = mpn
+            kwargs['mpn'] = mpn
         if ipm:
-            kwargs['internal_part_number'] = ipm
+            kwargs['pn'] = ipm
         if type:
             kwargs['type'] = type
         if gauge != '':
             try:
                 kwargs['gauge'] = int(gauge)
             except ValueError:
-                kwargs['gauge'] = float(gauge)
-            except Exception:
-                pass
-        if gauge_unit:
+                try:
+                    kwargs['gauge'] = float(gauge)
+                except ValueError:
+                    if gauge_unit:
+                        kwargs['gauge'] = f'{gauge} {gauge_unit}'
+                    else:
+                        kwargs['gauge'] = gauge
+
+        if gauge_unit and not isinstance(kwargs.get('gauge'), str):
             kwargs['gauge_unit'] = gauge_unit
         if length:
             try:
