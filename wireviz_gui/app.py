@@ -2,6 +2,7 @@ import logging
 from io import StringIO
 from pathlib import Path
 import tkinter as tk
+from tkinter import ttk
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter.messagebox import showerror, showinfo
 
@@ -17,6 +18,7 @@ from wireviz_gui.dialogs import AboutFrame, AddCableFrame, AddConnectionFrame, A
 from wireviz_gui.mating_dialog import AddMateDialog
 from wireviz_gui.images import *
 from wireviz_gui.menus import Menu
+from wireviz_gui.examples import EXAMPLES
 
 
 class Application(tk.Tk):
@@ -36,22 +38,32 @@ class Application(tk.Tk):
         self._title_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._io_frame = InputOutputFrame(self)
-        self._io_frame.grid(row=r, column=0, sticky='ew')
+        self._notebook = ttk.Notebook(self)
+        self._notebook.grid(row=r, column=0, sticky='news')
+
+        # Configure grid expansion
+        self.grid_rowconfigure(r, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self.add_tab()
 
         self._menu = Menu(self,
-                          open_file=self._io_frame.open_file,
-                          save=self._io_frame.save_file,
-                          save_as=self._io_frame.save_as_file,
-                          export_all=self._io_frame.export_all,
-                          refresh=self._io_frame.parse_text,
-                          reload_file=self._io_frame.reload_file,
-                          about=self._about)
+                          open_file=lambda: self.get_active_frame().open_file() if self.get_active_frame() else None,
+                          save=lambda: self.get_active_frame().save_file() if self.get_active_frame() else None,
+                          save_as=lambda: self.get_active_frame().save_as_file() if self.get_active_frame() else None,
+                          export_all=lambda: self.get_active_frame().export_all() if self.get_active_frame() else None,
+                          refresh=lambda: self.get_active_frame().parse_text() if self.get_active_frame() else None,
+                          reload_file=lambda: self.get_active_frame().reload_file() if self.get_active_frame() else None,
+                          about=self._about,
+                          load_example=self.add_tab,
+                          close_tab=self.close_current_tab,
+                          examples=EXAMPLES)
         self.config(menu=self._menu)
 
-        self.bind_all('<Control-o>', lambda _: self._io_frame.open_file())
-        self.bind_all('<Control-s>', lambda _: self._io_frame.save_file())
-        self.bind_all('<Control-r>', lambda _: self._io_frame.reload_file())
+        self.bind_all('<Control-o>', lambda _: self.get_active_frame().open_file() if self.get_active_frame() else None)
+        self.bind_all('<Control-s>', lambda _: self.get_active_frame().save_file() if self.get_active_frame() else None)
+        self.bind_all('<Control-r>', lambda _: self.get_active_frame().reload_file() if self.get_active_frame() else None)
+        self.bind_all('<Control-w>', lambda _: self.close_current_tab())
 
         self.mainloop()
 
@@ -59,6 +71,39 @@ class Application(tk.Tk):
         top = ToplevelBase(self)
         top.title('About')
         AboutFrame(top).grid()
+
+    def get_active_frame(self):
+        try:
+            tab_id = self._notebook.select()
+            if not tab_id:
+                return None
+            return self._notebook.nametowidget(tab_id)
+        except tk.TclError:
+            return None
+
+    def add_tab(self, title="Untitled", content=None, filepath=None):
+        frame = InputOutputFrame(self._notebook)
+
+        if content:
+            frame._text_entry_frame.clear()
+            frame._text_entry_frame.append(content)
+            frame.parse_text()
+
+        if filepath:
+            frame._current_file_path = filepath
+
+        self._notebook.add(frame, text=title)
+        self._notebook.select(frame)
+        return frame
+
+    def close_current_tab(self):
+        active_tab = self.get_active_frame()
+        if active_tab:
+            active_tab.destroy()
+
+        # If no tabs left, create a default one
+        if not self._notebook.tabs():
+            self.add_tab()
 
 
 class TitleFrame(BaseFrame):
