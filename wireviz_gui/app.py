@@ -365,9 +365,9 @@ class StructureViewFrame(BaseFrame):
         if self._harness.connectors == {} and self._harness.cables == {}:
             # a nag screen; todo: replace when wireviz is updated so
             # that parse will return an instance of `Harness`
-            self._logger.warning('There appears to be no data in the '
-                                 '`Harness` instance; Perhaps the '
-                                 'instance is blank?')
+            self._logger.debug('There appears to be no data in the '
+                               '`Harness` instance; Perhaps the '
+                               'instance is blank?')
             tk.Label(self, text='(none)', **self._normal) \
                 .grid(row=0, column=1, sticky='ew')
 
