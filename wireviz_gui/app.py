@@ -39,9 +39,13 @@ class Application(tk.Tk):
         self._io_frame = InputOutputFrame(self)
         self._io_frame.grid(row=r, column=0, sticky='ew')
 
-        self._menu = Menu(self, export_all=self._io_frame.export_all,
+        self._menu = Menu(self,
+                          save=self._io_frame.save_yaml,
+                          export_all=self._io_frame.export_all,
                           refresh=self._io_frame.parse_text, about=self._about)
         self.config(menu=self._menu)
+
+        self.bind_all('<Control-s>', lambda _: self._io_frame.save_yaml())
 
         self.mainloop()
 
@@ -156,6 +160,34 @@ class InputOutputFrame(BaseFrame):
 
         AddMateDialog(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
+
+    def save_yaml(self):
+        yaml_input = self._text_entry_frame.get()
+        if yaml_input.strip() == '':
+            return
+
+        # Validate YAML before saving
+        try:
+            parse(inp=yaml_input, return_types=('harness',))
+        except YAMLError as e:
+            showerror('Save Error', f'Invalid YAML content:\n{e}')
+            return
+        except Exception as e:
+            showerror('Save Error', f'Invalid Wireviz YAML:\n{e}')
+            return
+
+        file_name = asksaveasfilename(
+            defaultextension=".yaml",
+            filetypes=[("YAML files", "*.yaml"), ("All files", "*.*")]
+        )
+        if file_name is None or file_name.strip() == '':
+            return
+
+        try:
+            with open(file_name, 'w', encoding='utf-8') as f:
+                f.write(yaml_input)
+        except Exception as e:
+            showerror('Save Error', f'Could not save file:\n{e}')
 
     def export_all(self):
         file_name = asksaveasfilename()
