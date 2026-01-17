@@ -2,8 +2,8 @@ import logging
 from io import StringIO
 from pathlib import Path
 import tkinter as tk
-from tkinter.filedialog import asksaveasfilename
-from tkinter.messagebox import showerror
+from tkinter.filedialog import asksaveasfilename, askopenfilename
+from tkinter.messagebox import showerror, showinfo
 
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
@@ -40,12 +40,18 @@ class Application(tk.Tk):
         self._io_frame.grid(row=r, column=0, sticky='ew')
 
         self._menu = Menu(self,
-                          save=self._io_frame.save_yaml,
+                          open_file=self._io_frame.open_file,
+                          save=self._io_frame.save_file,
+                          save_as=self._io_frame.save_as_file,
                           export_all=self._io_frame.export_all,
-                          refresh=self._io_frame.parse_text, about=self._about)
+                          refresh=self._io_frame.parse_text,
+                          reload_file=self._io_frame.reload_file,
+                          about=self._about)
         self.config(menu=self._menu)
 
-        self.bind_all('<Control-s>', lambda _: self._io_frame.save_yaml())
+        self.bind_all('<Control-o>', lambda _: self._io_frame.open_file())
+        self.bind_all('<Control-s>', lambda _: self._io_frame.save_file())
+        self.bind_all('<Control-r>', lambda _: self._io_frame.reload_file())
 
         self.mainloop()
 
@@ -70,6 +76,7 @@ class InputOutputFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
+        self._current_file_path = None
         self._harness = Harness(Metadata(), Options(), Tweak())
 
         r = 0
@@ -161,7 +168,61 @@ class InputOutputFrame(BaseFrame):
         AddMateDialog(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
 
-    def save_yaml(self):
+    def open_file(self):
+        file_name = askopenfilename(
+            filetypes=[("YAML files", "*.yaml"), ("All files", "*.*")]
+        )
+        if not file_name:
+            return
+
+        try:
+            with open(file_name, 'r', encoding='utf-8') as f:
+                content = f.read()
+            self._text_entry_frame.clear()
+            self._text_entry_frame.append(content)
+            self._current_file_path = file_name
+            self.parse_text()
+        except Exception as e:
+            showerror('Open Error', f'Could not open file:\n{e}')
+
+    def reload_file(self):
+        if self._current_file_path:
+            try:
+                with open(self._current_file_path, 'r', encoding='utf-8') as f:
+                    content = f.read()
+                self._text_entry_frame.clear()
+                self._text_entry_frame.append(content)
+                self.parse_text()
+            except Exception as e:
+                showerror('Reload Error', f'Could not reload file:\n{e}')
+        else:
+            showinfo('Reload Info', 'No file to reload.')
+
+    def save_file(self):
+        if self._current_file_path:
+            yaml_input = self._text_entry_frame.get()
+            if yaml_input.strip() == '':
+                return
+
+            # Validate YAML before saving
+            try:
+                parse(inp=yaml_input, return_types=('harness',))
+            except YAMLError as e:
+                showerror('Save Error', f'Invalid YAML content:\n{e}')
+                return
+            except Exception as e:
+                showerror('Save Error', f'Invalid Wireviz YAML:\n{e}')
+                return
+
+            try:
+                with open(self._current_file_path, 'w', encoding='utf-8') as f:
+                    f.write(yaml_input)
+            except Exception as e:
+                showerror('Save Error', f'Could not save file:\n{e}')
+        else:
+            self.save_as_file()
+
+    def save_as_file(self):
         yaml_input = self._text_entry_frame.get()
         if yaml_input.strip() == '':
             return
@@ -186,8 +247,13 @@ class InputOutputFrame(BaseFrame):
         try:
             with open(file_name, 'w', encoding='utf-8') as f:
                 f.write(yaml_input)
+            self._current_file_path = file_name
         except Exception as e:
             showerror('Save Error', f'Could not save file:\n{e}')
+
+    def save_yaml(self):
+        """Deprecated: use save_file or save_as_file"""
+        self.save_file()
 
     def export_all(self):
         file_name = asksaveasfilename()
