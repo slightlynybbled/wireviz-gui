@@ -338,7 +338,6 @@ class InputOutputFrame(BaseFrame):
                 )
                 self._harness.connectors = new_harness.connectors
                 self._harness.cables = new_harness.cables
-                self._harness.connections = new_harness.connections
                 self._harness.mates = new_harness.mates
                 self._harness.additional_bom_items = new_harness.additional_bom_items
 
