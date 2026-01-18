@@ -157,10 +157,10 @@ class AddConnectorFrame(BaseFrame):
 
         if connector.manufacturer is not None:
             self._manuf_entry.insert(0, connector.manufacturer)
-        if connector.manufacturer_part_number is not None:
-            self._mpn_entry.insert(0, connector.manufacturer_part_number)
-        if connector.internal_part_number is not None:
-            self._ipm_entry.insert(0, connector.internal_part_number)
+        if connector.mpn is not None:
+            self._mpn_entry.insert(0, connector.mpn)
+        if connector.pn is not None:
+            self._ipm_entry.insert(0, connector.pn)
         if connector.type is not None:
             self._type_entry.insert(0, connector.type)
         if connector.subtype is not None:
