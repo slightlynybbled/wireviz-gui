@@ -3,6 +3,7 @@ from io import StringIO
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
+import yaml
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter.messagebox import showerror, showinfo
 
@@ -151,13 +152,34 @@ class InputOutputFrame(BaseFrame):
         self._harness_view_frame = HarnessViewFrame(self)
         self._harness_view_frame.grid(row=r, column=0, sticky='ew')
 
+    def _update_yaml(self, section, key, value, is_list=False):
+        current_text = self._text_entry_frame.get()
+        try:
+            data = yaml.safe_load(current_text) or {}
+
+            if section not in data or data[section] is None:
+                data[section] = [] if is_list else {}
+
+            if is_list:
+                data[section].append(value)
+            else:
+                data[section][key] = value
+
+            self._text_entry_frame.clear()
+            self._text_entry_frame.append(yaml.dump(data, default_flow_style=False, sort_keys=False))
+            return True
+        except yaml.YAMLError as e:
+            showerror('YAML Error', f'Error processing existing YAML: {e}')
+            return False
+
     def add_connector(self):
         top = ToplevelBase(self)
         top.title('Add Connector')
 
-        def on_save():
-            top.destroy()
-            self.refresh_view()
+        def on_save(name, connector_data):
+            if self._update_yaml('connectors', name, connector_data):
+                top.destroy()
+                self.parse_text()
 
         AddConnectorFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -166,9 +188,10 @@ class InputOutputFrame(BaseFrame):
         top = ToplevelBase(self)
         top.title('Add Cable')
 
-        def on_save():
-            top.destroy()
-            self.refresh_view()
+        def on_save(name, cable_data):
+            if self._update_yaml('cables', name, cable_data):
+                top.destroy()
+                self.parse_text()
 
         AddCableFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -177,9 +200,35 @@ class InputOutputFrame(BaseFrame):
         top = ToplevelBase(self)
         top.title('Add Connection')
 
-        def on_save():
-            top.destroy()
-            self.refresh_view()
+        def on_save(connection_data):
+            # connection_data is dict with from_name, from_pin, via_name, via_pin, to_name, to_pin
+            # Convert to wireviz connection structure: list of dicts/strings
+
+            # Construct connection list
+            conn_list = []
+
+            # From
+            from_entry = connection_data['from_name']
+            if isinstance(connection_data['from_pin'], int) or (connection_data['from_pin'] and str(connection_data['from_pin']).strip()):
+                 from_entry = {connection_data['from_name']: connection_data['from_pin']}
+            conn_list.append(from_entry)
+
+            # Via (Through)
+            if connection_data['via_name']:
+                 via_entry = connection_data['via_name']
+                 if isinstance(connection_data['via_pin'], int) or (connection_data['via_pin'] and str(connection_data['via_pin']).strip()):
+                      via_entry = {connection_data['via_name']: connection_data['via_pin']}
+                 conn_list.append(via_entry)
+
+            # To
+            to_entry = connection_data['to_name']
+            if isinstance(connection_data['to_pin'], int) or (connection_data['to_pin'] and str(connection_data['to_pin']).strip()):
+                 to_entry = {connection_data['to_name']: connection_data['to_pin']}
+            conn_list.append(to_entry)
+
+            if self._update_yaml('connections', None, conn_list, is_list=True):
+                top.destroy()
+                self.parse_text()
 
         AddConnectionFrame(top, harness=self._harness, on_save_callback=on_save)\
             .grid()
@@ -390,7 +439,7 @@ class StructureViewFrame(BaseFrame):
         top = ToplevelBase(self)
         top.title('Add Connector')
 
-        def on_save():
+        def on_save(*args):
             top.destroy()
             self.refresh(True)
 

@@ -194,7 +194,7 @@ class AddConnectorFrame(BaseFrame):
             return
 
         if self._on_save_callback is not None:
-            self._on_save_callback()
+            self._on_save_callback(name, kwargs)
 
 
 class PinsFrame(BaseFrame):
@@ -482,7 +482,7 @@ class AddCableFrame(BaseFrame):
             return
 
         if self._on_save_callback is not None:
-            self._on_save_callback()
+            self._on_save_callback(name, kwargs)
 
 
 class WiresFrame(BaseFrame):
@@ -703,4 +703,4 @@ class AddConnectionFrame(BaseFrame):
         self._harness.connect(**data)
 
         if self._on_save_callback is not None:
-            self._on_save_callback()
+            self._on_save_callback(data)
