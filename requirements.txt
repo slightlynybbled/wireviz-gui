@@ -2,3 +2,4 @@ click
 pillow
 tk-tools
 wireviz>=0.4.1
+graphviz
