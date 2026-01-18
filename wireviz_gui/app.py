@@ -167,22 +167,12 @@ class InputOutputFrame(BaseFrame):
             if isinstance(new_data, list):
                 # For lists (connections), append
                 if not isinstance(data[section], list):
-                    # Handle case where section existed but wasn't a list
-                     # (e.g. malformed YAML or mismatch)
-                     # Force it to be a list if we are adding a list item
-                     # But connections should be a list of lists.
-                     # If it was something else, we might corrupt.
-                     # Assuming standard wireviz YAML structure.
                      if data[section] is None:
                          data[section] = []
                      else:
-                        # Fallback or error? Let's assume it's fixable or just append
-                        # if it's not a list, we can't append.
                          if not isinstance(data[section], list):
-                             # Maybe convert to list?
                              pass
 
-                # Check duplication? For connections, duplicates are allowed usually.
                 data[section].append(new_data)
 
             elif isinstance(new_data, dict):
@@ -191,7 +181,6 @@ class InputOutputFrame(BaseFrame):
                      if data[section] is None:
                          data[section] = {}
 
-                # Check duplication is handled by dialog mostly, but here we just merge
                 data[section].update(new_data)
 
             # Clear the text entry and insert the updated YAML
