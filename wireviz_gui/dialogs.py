@@ -7,7 +7,7 @@ import webbrowser
 from wireviz.DataClasses import Connector, Cable, Connection
 from wireviz.wireviz import Harness
 #from wireviz.wv_colors import color_full
-from wireviz.wv_helper import awg_equiv_table
+from wireviz.wv_helper import awg_equiv_table, mm2_equiv_table
 
 from wireviz_gui._base import BaseFrame
 from wireviz_gui.images import logo
@@ -382,7 +382,8 @@ class AddCableFrame(BaseFrame):
             .grid(row=r, column=0, sticky='e')
         self._gauge_cb = ttk.Combobox(self)
         self._gauge_cb.grid(row=r, column=1, sticky='ew')
-        tk.Label(self, text='AWG', **self._normal).grid(row=r, column=2, sticky='ew')
+        self._gauge_label = tk.Label(self, text='AWG', **self._normal)
+        self._gauge_label.grid(row=r, column=2, sticky='ew')
 
         r += 1
         tk.Label(self, text='Length:', **self._normal)\
@@ -417,11 +418,14 @@ class AddCableFrame(BaseFrame):
 
     def _update_gauge_list(self):
         gauge_unit = self._gauge_unit_cb.get().strip()
+        self._gauge_label.config(text=gauge_unit)
 
         if gauge_unit == 'mm\u00B2':
-            gauge_list = [k for k, _ in awg_equiv_table.items()]
+            gauge_list = list(awg_equiv_table.keys())
         else:
-            gauge_list = [v for _, v in awg_equiv_table.items()]
+            gauge_list = list(mm2_equiv_table.keys())
+            gauge_list += ['1/0', '2/0', '3/0', '4/0']
+            gauge_list += ['0', '00', '000', '0000']
 
         self._gauge_cb['values'] = gauge_list
 
