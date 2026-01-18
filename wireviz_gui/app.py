@@ -3,6 +3,7 @@ from io import StringIO
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
+import yaml
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter.messagebox import showerror, showinfo
 
