@@ -79,15 +79,9 @@ class AddMateDialog(BaseFrame):
             showerror('Error', 'Please select both "From" and "To" connectors.')
             return
 
-        # This is a simplified approach. A more robust solution would be to
-        # parse the existing YAML, add the new connection, and then dump the
-        # updated YAML back to the text entry. For now, we just append the
-        # new connection.
-        yaml_snippet = f"""
-- - {from_connector}
-  - {arrow}
-  - {to_connector}
-"""
+        # Return a python list representing the connection: [from, arrow, to]
+        # This will be appended to the 'connections' list in the harness data.
+        mate_data = [from_connector, arrow, to_connector]
 
         if self._on_save_callback is not None:
-            self._on_save_callback(yaml_snippet)
+            self._on_save_callback(mate_data)
