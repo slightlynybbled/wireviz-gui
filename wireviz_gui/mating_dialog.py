@@ -24,19 +24,26 @@ class AddMateDialog(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        HeadLabel(self, text="Mate Connectors", ).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        HeadLabel(
+            self,
+            text="Mate Connectors",
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        NormLabel(self, text="From:", ).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="From:",
+        ).grid(row=r, column=0, sticky="e")
         self._from_connector_cb = ttk.Combobox(
             self, values=list(self._harness.connectors.keys())
         )
         self._from_connector_cb.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        NormLabel(self, text="To:", ).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="To:",
+        ).grid(row=r, column=0, sticky="e")
         self._to_connector_cb = ttk.Combobox(
             self, values=list(self._harness.connectors.keys())
         )

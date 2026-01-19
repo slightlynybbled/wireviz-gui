@@ -500,9 +500,7 @@ class StructureViewFrame(BaseFrame):
         for child in self.winfo_children():
             child.destroy()
 
-        NormLabel(self, text="Harness Elements:").grid(
-            row=0, column=0, sticky="ew"
-        )
+        NormLabel(self, text="Harness Elements:").grid(row=0, column=0, sticky="ew")
 
         if self._harness.connectors == {} and self._harness.cables == {}:
             # a nag screen; todo: replace when wireviz is updated so
@@ -512,13 +510,11 @@ class StructureViewFrame(BaseFrame):
                 "`Harness` instance; Perhaps the "
                 "instance is blank?"
             )
-            NormLabel(self, text="(none)").grid(
-                row=0, column=1, sticky="ew"
-            )
+            NormLabel(self, text="(none)").grid(row=0, column=1, sticky="ew")
 
         c = 1
         for connector in self._harness.connectors:
-            conn_label = LinkLabel(self, text=f'{connector}')
+            conn_label = LinkLabel(self, text=f"{connector}")
             conn_label.grid(row=0, column=c, sticky="ew")
             conn_label.bind(
                 "<Button-1>", lambda _, cl=connector: self._load_connector_dialog(cl)
@@ -526,7 +522,10 @@ class StructureViewFrame(BaseFrame):
             c += 1
 
         for cable in self._harness.cables:
-            cable_label = LinkLabel(self, text=f"{cable}", )
+            cable_label = LinkLabel(
+                self,
+                text=f"{cable}",
+            )
             cable_label.grid(row=0, column=c, sticky="ew")
             cable_label.bind("<Button-1>", lambda _, cb=cable: print(cb))
             c += 1
@@ -600,7 +599,10 @@ class ButtonFrame(BaseFrame):
 
 class TextEntryFrame(BaseFrame):
     def __init__(
-        self, parent, on_update_callback: Optional[Callable] = None, loglevel=logging.INFO
+        self,
+        parent,
+        on_update_callback: Optional[Callable] = None,
+        loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
 
