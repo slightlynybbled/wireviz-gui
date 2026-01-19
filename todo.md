@@ -17,7 +17,7 @@ This document outlines the necessary updates to the `wireviz-gui` project to mak
 
 - [ ] **Update `wireviz` Integration:**
     - [ ] **Imports:** Update the `import` statements in `wireviz_gui/app.py` and other files to match the new `wireviz` package structure.
-    - [ ] **`parse` function:** Update the call to the `parse` function to match the new API, including any changes to its arguments and return value.
+    - [x] **`parse` function:** Update the call to the `parse` function to match the new API, including any changes to its arguments and return value.
     - [ ] **`Harness` object:**
         - Update the code to use the new method for generating output files instead of the old `Harness.output()` method.
         - Find the new way to get the rendered PNG image data for display in the GUI, replacing the access to the `Harness.png` attribute.

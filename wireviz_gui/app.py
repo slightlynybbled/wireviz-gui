@@ -373,7 +373,7 @@ class InputOutputFrame(BaseFrame):
                     inp=yaml_input,
                     output_dir=path.parent,
                     output_name=path.stem,
-                    output_formats=("png", "svg", "html"),
+                    output_formats=("png", "svg", "html", "tsv", ),
                 )
             except (ExecutableNotFound, FileNotFoundError):
                 showerror(
