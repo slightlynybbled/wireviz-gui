@@ -25,6 +25,7 @@ from wireviz_gui.mating_dialog import AddMateDialog
 from wireviz_gui.images import *
 from wireviz_gui.menus import Menu
 from wireviz_gui.examples import EXAMPLES
+from wireviz_gui.version import __version__
 
 
 class Application(tk.Tk):
@@ -34,7 +35,7 @@ class Application(tk.Tk):
 
         super().__init__(**kwargs)
 
-        self.title("wireviz-gui")
+        self.title(f"wireviz-gui {__version__}")
 
         self._icon = tk.PhotoImage(data=slightlynybbled_logo_small)
         self.tk.call("wm", "iconphoto", self._w, self._icon)

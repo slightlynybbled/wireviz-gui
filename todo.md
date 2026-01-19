@@ -6,7 +6,7 @@ This document outlines the necessary updates to the `wireviz-gui` project to mak
 
 - [ ] **Update `README.md`:**
     - [ ] Change the `wireviz` installation instructions from manual git clone to `pip install wireviz`.
-    - [ ] Update the URL for the `wireviz` repository to `https://github.com/wireviz/WireViz`.
+    - [x] Update the URL for the `wireviz` repository to `https://github.com/wireviz/WireViz`.
     - [ ] Review and update any other outdated information.
 
 ## Code Updates

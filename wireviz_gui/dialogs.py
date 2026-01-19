@@ -52,7 +52,7 @@ class AboutFrame(BaseFrame):
         wireviz_label.grid(row=r, column=1, sticky="w")
         wireviz_label.bind(
             "<Button-1>",
-            lambda _: webbrowser.open("https://github.com/formatc1702/WireViz"),
+            lambda _: webbrowser.open("https://github.com/wireviz/WireViz"),
         )
 
         r += 1
