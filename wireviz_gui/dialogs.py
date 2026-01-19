@@ -200,7 +200,7 @@ class AddConnectorFrame(BaseFrame):
             self._subtype_entry.insert(0, connector.subtype)
 
         # load PinsFrame
-        self._pins_frame.load(connector.pinlabels, connector.pinout)
+        self._pins_frame.load(connector.pinlabels, connector.pinlabels)
 
     def _save(self):
         name = self._name_entry.get().strip()
