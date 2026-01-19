@@ -780,11 +780,11 @@ class AddConnectionFrame(BaseFrame):
         cables = list(self._harness.cables.keys())
 
         r += 1
-        NormLabel(self, text="From", **self._normal).grid(row=r, column=0, sticky="ew")
-        NormLabel(self, text="Through", **self._normal).grid(
+        NormLabel(self, text="From", ).grid(row=r, column=0, sticky="ew")
+        NormLabel(self, text="Through", ).grid(
             row=r, column=1, sticky="ew"
         )
-        NormLabel(self, text="To", **self._normal).grid(row=r, column=2, sticky="ew")
+        NormLabel(self, text="To", ).grid(row=r, column=2, sticky="ew")
 
         r += 1
         self._from_connector_cb = ttk.Combobox(self, values=connectors)
