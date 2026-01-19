@@ -37,24 +37,29 @@ environment.
 
 # Unit Testing
 
-    $>uv run pytest
+ ```bash
+ uv run pytest
+ ```
 
 # Installation
 
 This assumes you are using `uv` to manage your virtual environments
 
 1. **Clone this repository:**
-   ```bash
-   git clone https://github.com/slightlynybbled/wireviz-gui
-   cd wireviz-gui
-   ```
+
+```bash
+git clone https://github.com/slightlynybbled/wireviz-gui
+cd wireviz-gui
+```
 
 2. **Create, active your virtual environments, and install dependencies:**
-   ```bash
-   uv sync
-   ```
+
+```bash
+uv sync
+```
 
 3. **Run the application:**
-   ```bash
-   python -m wireviz_gui
-   ```
+
+```bash
+uv run -m wireviz_gui
+```
