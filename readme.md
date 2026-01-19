@@ -41,7 +41,7 @@ environment.
 
 # Installation
 
-This assumes you are familiar with Python, virtual environments, and `pip`.
+This assumes you are using `uv` to manage your virtual environments
 
 1. **Clone this repository:**
    ```bash
@@ -49,18 +49,12 @@ This assumes you are familiar with Python, virtual environments, and `pip`.
    cd wireviz-gui
    ```
 
-2. **Create and activate a virtual environment:**
+2. **Create, active your virtual environments, and install dependencies:**
    ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
+   uv sync
    ```
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-4. **Run the application:**
+3. **Run the application:**
    ```bash
    python -m wireviz_gui
    ```
