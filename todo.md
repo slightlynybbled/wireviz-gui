@@ -12,8 +12,8 @@ This document outlines the necessary updates to the `wireviz-gui` project to mak
 ## Code Updates
 
 - [ ] **Update `requirements.txt`:**
-    - [ ] Add `wireviz` to the requirements file, specifying a recent version.
-    - [ ] Ensure all other dependencies are up to date.
+    - [x] Add `wireviz` to the requirements file, specifying a recent version.
+    - [x] Ensure all other dependencies are up to date.
 
 - [ ] **Update `wireviz` Integration:**
     - [ ] **Imports:** Update the `import` statements in `wireviz_gui/app.py` and other files to match the new `wireviz` package structure.
