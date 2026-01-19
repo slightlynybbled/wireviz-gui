@@ -1,11 +1,10 @@
 import logging
-from io import StringIO
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
-import yaml
 from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter.messagebox import showerror, showinfo
+from typing import Callable, Optional, Union
 
 from graphviz import ExecutableNotFound
 from PIL import ImageTk
@@ -15,7 +14,7 @@ from wireviz.DataClasses import Connector, Cable, Metadata, Options, Tweak
 from yaml import YAMLError
 import yaml
 
-from wireviz_gui._base import BaseFrame, ToplevelBase
+from wireviz_gui._base import BaseFrame, HeadButton, LinkLabel, NormLabel, ToplevelBase
 from wireviz_gui.dialogs import (
     AboutFrame,
     AddCableFrame,
@@ -448,7 +447,7 @@ class StructureViewFrame(BaseFrame):
         self,
         parent,
         harness: Harness,
-        on_update_callback: callable = None,
+        on_update_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent=parent, loglevel=loglevel)
@@ -501,7 +500,7 @@ class StructureViewFrame(BaseFrame):
         for child in self.winfo_children():
             child.destroy()
 
-        tk.Label(self, text="Harness Elements:", **self._normal).grid(
+        NormLabel(self, text="Harness Elements:").grid(
             row=0, column=0, sticky="ew"
         )
 
@@ -513,13 +512,13 @@ class StructureViewFrame(BaseFrame):
                 "`Harness` instance; Perhaps the "
                 "instance is blank?"
             )
-            tk.Label(self, text="(none)", **self._normal).grid(
+            NormLabel(self, text="(none)").grid(
                 row=0, column=1, sticky="ew"
             )
 
         c = 1
         for connector in self._harness.connectors:
-            conn_label = tk.Label(self, text=f"{connector}", **self._link)
+            conn_label = LinkLabel(self, text=f'{connector}')
             conn_label.grid(row=0, column=c, sticky="ew")
             conn_label.bind(
                 "<Button-1>", lambda _, cl=connector: self._load_connector_dialog(cl)
@@ -527,7 +526,7 @@ class StructureViewFrame(BaseFrame):
             c += 1
 
         for cable in self._harness.cables:
-            cable_label = tk.Label(self, text=f"{cable}", **self._link)
+            cable_label = LinkLabel(self, text=f"{cable}", )
             cable_label.grid(row=0, column=c, sticky="ew")
             cable_label.bind("<Button-1>", lambda _, cb=cable: print(cb))
             c += 1
@@ -540,12 +539,12 @@ class ButtonFrame(BaseFrame):
     def __init__(
         self,
         parent,
-        on_click_add_connector: callable,
-        on_click_add_cable: callable,
-        on_click_add_connection: callable,
-        on_click_add_mate: callable,
-        on_click_export: callable,
-        on_click_refresh: callable,
+        on_click_add_connector: Callable,
+        on_click_add_cable: Callable,
+        on_click_add_connection: Callable,
+        on_click_add_mate: Callable,
+        on_click_export: Callable,
+        on_click_refresh: Callable,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -592,8 +591,8 @@ class ButtonFrame(BaseFrame):
 
         c += 1
         self._refresh_img = tk.PhotoImage(data=refresh_fill)
-        refresh_img_btn = tk.Button(
-            self, image=self._refresh_img, command=on_click_refresh, **self._heading
+        refresh_img_btn = HeadButton(
+            self, image=self._refresh_img, command=on_click_refresh
         )
         refresh_img_btn.grid(row=0, column=c, sticky="ew")
         ToolTip(refresh_img_btn, "Refresh Image")
@@ -601,7 +600,7 @@ class ButtonFrame(BaseFrame):
 
 class TextEntryFrame(BaseFrame):
     def __init__(
-        self, parent, on_update_callback: callable = None, loglevel=logging.INFO
+        self, parent, on_update_callback: Optional[Callable] = None, loglevel=logging.INFO
     ):
         super().__init__(parent, loglevel=loglevel)
 
@@ -612,7 +611,7 @@ class TextEntryFrame(BaseFrame):
         self._text.bind("<Control-l>", lambda _: self._updated())
         self._text.tag_config("highlight", background="yellow")
 
-    def associate_callback(self, on_update_callback: callable):
+    def associate_callback(self, on_update_callback: Callable):
         self._on_update_callback = on_update_callback
 
     def _updated(self):

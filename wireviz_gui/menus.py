@@ -1,5 +1,6 @@
 import logging
 import tkinter as tk
+from typing import Callable, Optional
 
 from wireviz_gui._base import BaseMenu
 
@@ -8,16 +9,16 @@ class Menu(BaseMenu):
     def __init__(
         self,
         parent,
-        open_file: callable,
-        save: callable,
-        save_as: callable,
-        export_all: callable,
-        refresh: callable,
-        reload_file: callable,
-        about: callable,
-        load_example: callable = None,
-        close_tab: callable = None,
-        examples: dict = None,
+        open_file: Callable,
+        save: Callable,
+        save_as: Callable,
+        export_all: Callable,
+        refresh: Callable,
+        reload_file: Callable,
+        about: Callable,
+        load_example: Optional[Callable] = None,
+        close_tab: Optional[Callable] = None,
+        examples: Optional[dict] = None,
         loglevel=logging.INFO,
         **kwargs,
     ):
@@ -45,15 +46,15 @@ class FileMenu(BaseMenu):
     def __init__(
         self,
         parent,
-        open_file: callable,
-        save: callable,
-        save_as: callable,
-        export_all: callable,
-        refresh: callable,
-        reload_file: callable,
-        load_example: callable = None,
-        close_tab: callable = None,
-        examples: dict = None,
+        open_file: Callable,
+        save: Callable,
+        save_as: Callable,
+        export_all: Callable,
+        refresh: Callable,
+        reload_file: Callable,
+        load_example: Optional[Callable] = None,
+        close_tab: Optional[Callable] = None,
+        examples: Optional[dict] = None,
         loglevel=logging.INFO,
         **kwargs,
     ):
@@ -81,7 +82,7 @@ class FileMenu(BaseMenu):
 
 
 class HelpMenu(BaseMenu):
-    def __init__(self, parent, about: callable, loglevel=logging.INFO, **kwargs):
+    def __init__(self, parent, about: Callable, loglevel=logging.INFO, **kwargs):
         super().__init__(parent=parent, loglevel=loglevel, **kwargs)
 
         command_lookup = {"About": lambda: about()}
@@ -91,9 +92,10 @@ class HelpMenu(BaseMenu):
 
 
 if __name__ == "__main__":
+    # This section is only used for testing the menu structure
     window = tk.Tk()
 
-    menu = Menu(window)
+    menu = Menu(window)  # type: ignore
     window.config(menu=menu)
 
     window.mainloop()

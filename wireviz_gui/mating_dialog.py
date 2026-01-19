@@ -2,11 +2,12 @@ import logging
 import tkinter as tk
 from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
+from typing import Callable, Optional
 import webbrowser
 
 from wireviz.wireviz import Harness
 
-from wireviz_gui._base import BaseFrame
+from wireviz_gui._base import BaseFrame, HeadLabel, NormButton, NormLabel
 
 
 class AddMateDialog(BaseFrame):
@@ -14,7 +15,7 @@ class AddMateDialog(BaseFrame):
         self,
         parent,
         harness: Harness,
-        on_save_callback: callable = None,
+        on_save_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -23,19 +24,19 @@ class AddMateDialog(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text="Mate Connectors", **self._heading).grid(
+        HeadLabel(self, text="Mate Connectors", ).grid(
             row=r, column=0, columnspan=2, sticky="ew"
         )
 
         r += 1
-        tk.Label(self, text="From:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(self, text="From:", ).grid(row=r, column=0, sticky="e")
         self._from_connector_cb = ttk.Combobox(
             self, values=list(self._harness.connectors.keys())
         )
         self._from_connector_cb.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="To:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(self, text="To:", ).grid(row=r, column=0, sticky="e")
         self._to_connector_cb = ttk.Combobox(
             self, values=list(self._harness.connectors.keys())
         )
@@ -65,7 +66,7 @@ class AddMateDialog(BaseFrame):
         self._update_arrow_directions()
 
         r += 1
-        tk.Button(self, text="Save Mate", command=self._save, **self._normal).grid(
+        NormButton(self, text="Save Mate", command=self._save, **self._normal).grid(
             row=r, column=0, columnspan=2, sticky="ew"
         )
 
