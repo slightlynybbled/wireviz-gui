@@ -18,7 +18,7 @@ def _name_is_duplicated(new_name, harness):
     names += list([c for c in harness.cables.keys()])
 
     if new_name in names:
-        showerror('Invalid Entry', '"Name" is duplicated')
+        showerror("Invalid Entry", '"Name" is duplicated')
         return True
 
     return False
@@ -31,44 +31,59 @@ class AboutFrame(BaseFrame):
         self._logo_img = tk.PhotoImage(data=logo)
 
         r = 0
-        tk.Label(self, image=self._logo_img)\
-            .grid(row=r, column=0, columnspan=2)
+        tk.Label(self, image=self._logo_img).grid(row=r, column=0, columnspan=2)
 
         r += 1
-        tk.Label(self, text='by jason r. jones', **self._normal)\
-            .grid(row=r, column=0, columnspan=2)
+        tk.Label(self, text="by jason r. jones", **self._normal).grid(
+            row=r, column=0, columnspan=2
+        )
 
         r += 1
-        ttk.Separator(self, orient='horizontal').grid(row=r, column=0, columnspan=2, sticky='ew')
+        ttk.Separator(self, orient="horizontal").grid(
+            row=r, column=0, columnspan=2, sticky="ew"
+        )
 
         r += 1
-        tk.Label(self, text='built on ', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        wireviz_label = tk.Label(self, text='WireViz', **self._link)
-        wireviz_label.grid(row=r, column=1, sticky='w')
-        wireviz_label.bind('<Button-1>', lambda _: webbrowser.open('https://github.com/formatc1702/WireViz'))
+        tk.Label(self, text="built on ", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
+        wireviz_label = tk.Label(self, text="WireViz", **self._link)
+        wireviz_label.grid(row=r, column=1, sticky="w")
+        wireviz_label.bind(
+            "<Button-1>",
+            lambda _: webbrowser.open("https://github.com/formatc1702/WireViz"),
+        )
 
         r += 1
-        tk.Label(self, text='built on ', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        graphviz_label = tk.Label(self, text='graphviz', **self._link)
-        graphviz_label.grid(row=r, column=1, sticky='w')
-        graphviz_label.bind('<Button-1>', lambda _: webbrowser.open('https://graphviz.org/'))
+        tk.Label(self, text="built on ", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
+        graphviz_label = tk.Label(self, text="graphviz", **self._link)
+        graphviz_label.grid(row=r, column=1, sticky="w")
+        graphviz_label.bind(
+            "<Button-1>", lambda _: webbrowser.open("https://graphviz.org/")
+        )
 
         r += 1
-        tk.Label(self, text='icons provided by ', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        remix_label = tk.Label(self, text='REMIX ICON', **self._link)
-        remix_label.grid(row=r, column=1, sticky='w')
-        remix_label.bind('<Button-1>', lambda _: webbrowser.open('https://remixicon.com/'))
+        tk.Label(self, text="icons provided by ", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
+        remix_label = tk.Label(self, text="REMIX ICON", **self._link)
+        remix_label.grid(row=r, column=1, sticky="w")
+        remix_label.bind(
+            "<Button-1>", lambda _: webbrowser.open("https://remixicon.com/")
+        )
 
 
 class AddConnectorFrame(BaseFrame):
-    def __init__(self, parent,
-                 harness: Harness,
-                 connector_name: str = None,
-                 on_save_callback: callable = None,
-                 loglevel=logging.INFO):
+    def __init__(
+        self,
+        parent,
+        harness: Harness,
+        connector_name: str = None,
+        on_save_callback: callable = None,
+        loglevel=logging.INFO,
+    ):
         super().__init__(parent, loglevel=loglevel)
 
         self._harness = harness
@@ -76,67 +91,70 @@ class AddConnectorFrame(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text='Add Connector', **self._heading)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Label(self, text="Add Connector", **self._heading).grid(
+            row=r, column=0, columnspan=2, sticky="ew"
+        )
 
         r += 1
-        tk.Label(self, text='Name:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Name:", **self._normal).grid(row=r, column=0, sticky="e")
         self._name_entry = tk.Entry(self)
-        self._name_entry.grid(row=r, column=1, sticky='ew')
+        self._name_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Manufacturer:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Manufacturer:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._manuf_entry = tk.Entry(self)
-        self._manuf_entry.grid(row=r, column=1, sticky='ew')
+        self._manuf_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Manuf. Part Number:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Manuf. Part Number:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._mpn_entry = tk.Entry(self)
-        self._mpn_entry.grid(row=r, column=1, sticky='ew')
+        self._mpn_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Internal Part Number:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Internal Part Number:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._ipm_entry = tk.Entry(self)
-        self._ipm_entry.grid(row=r, column=1, sticky='ew')
+        self._ipm_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Type:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Type:", **self._normal).grid(row=r, column=0, sticky="e")
         self._type_entry = tk.Entry(self)
-        self._type_entry.grid(row=r, column=1, sticky='ew')
+        self._type_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Sub-Type:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Sub-Type:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._subtype_entry = tk.Entry(self)
-        self._subtype_entry.grid(row=r, column=1, sticky='ew')
+        self._subtype_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
         self._pins_frame = PinsFrame(self)
-        self._pins_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
+        self._pins_frame.grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text='Add Pin',
-                  command=lambda: self._pins_frame.add_pin(),
-                  **self._normal)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Button(
+            self,
+            text="Add Pin",
+            command=lambda: self._pins_frame.add_pin(),
+            **self._normal,
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text='Save Connector',
-                  command=self._save,
-                  **self._normal)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Button(self, text="Save Connector", command=self._save, **self._normal).grid(
+            row=r, column=0, columnspan=2, sticky="ew"
+        )
 
         if self._connector_name is not None:
             r += 1
-            tk.Button(self, text='Delete Connector',
-                      command=self._delete,
-                      **self._normal) \
-                .grid(row=r, column=0, columnspan=2, sticky='ew')
+            tk.Button(
+                self, text="Delete Connector", command=self._delete, **self._normal
+            ).grid(row=r, column=0, columnspan=2, sticky="ew")
             self._load()
 
     def _delete(self):
@@ -152,8 +170,8 @@ class AddConnectorFrame(BaseFrame):
 
     def _load(self):
         connector = self._harness.connectors[self._connector_name]
-        self._name_entry.insert(0, f'{connector.name}')
-        self._name_entry.config(state='disabled')
+        self._name_entry.insert(0, f"{connector.name}")
+        self._name_entry.config(state="disabled")
 
         if connector.manufacturer is not None:
             self._manuf_entry.insert(0, connector.manufacturer)
@@ -178,28 +196,28 @@ class AddConnectorFrame(BaseFrame):
         subtype = self._subtype_entry.get().strip()
 
         if not name:
-            showerror('Invalid Input', 'Name is required')
+            showerror("Invalid Input", "Name is required")
             return
 
         kwargs = {}
         if manuf:
-            kwargs['manufacturer'] = manuf
+            kwargs["manufacturer"] = manuf
         if mpn:
-            kwargs['mpn'] = mpn
+            kwargs["mpn"] = mpn
         if ipm:
-            kwargs['pn'] = ipm
+            kwargs["pn"] = ipm
         if type:
-            kwargs['type'] = type
+            kwargs["type"] = type
         if subtype:
-            kwargs['subtype'] = subtype
+            kwargs["subtype"] = subtype
 
         self._pins_frame.update_all()
 
         # pinlabels and pincount logic
         pinlabels = self._pins_frame.pin_numbers
         if pinlabels:
-            kwargs['pinlabels'] = pinlabels
-            kwargs['pincount'] = len(pinlabels)
+            kwargs["pinlabels"] = pinlabels
+            kwargs["pincount"] = len(pinlabels)
 
             # Check if we have pin names (pinout)
             pinout = self._pins_frame.pinout
@@ -209,19 +227,16 @@ class AddConnectorFrame(BaseFrame):
             # If name matches label, it might be redundant, but WireViz uses pinout for text display.
             # Let's include it if present.
             if any(str(n) != str(l) for n, l in zip(pinout, pinlabels)):
-                kwargs['pinout'] = pinout
+                kwargs["pinout"] = pinout
 
-        connector_data = {
-            name: kwargs
-        }
+        connector_data = {name: kwargs}
 
         if self._on_save_callback is not None:
             self._on_save_callback(connector_data)
 
 
 class PinsFrame(BaseFrame):
-    def __init__(self, parent,
-                 loglevel=logging.INFO):
+    def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
         self._pin_frames = []
@@ -236,10 +251,12 @@ class PinsFrame(BaseFrame):
 
         if len(self._pin_frames) > 0:
             for i, frame in enumerate(self._pin_frames):
-                frame.grid(row=i+1, column=0, sticky='ew')
+                frame.grid(row=i + 1, column=0, sticky="ew")
             return
 
-        tk.Label(self, text='(no pins)', **self._normal).grid(row=0, column=0, sticky='ew')
+        tk.Label(self, text="(no pins)", **self._normal).grid(
+            row=0, column=0, sticky="ew"
+        )
 
     @property
     def pin_numbers(self):
@@ -254,7 +271,9 @@ class PinsFrame(BaseFrame):
     def load(self, pinlabels, pinout):
         for num, name in zip(pinlabels, pinout):
             self._pin_frames.append(
-                PinFrame(self, pin_number=num, pin_name=name, on_delete_callback=self._redraw)
+                PinFrame(
+                    self, pin_number=num, pin_name=name, on_delete_callback=self._redraw
+                )
             )
         self._redraw()
 
@@ -281,11 +300,14 @@ class PinsFrame(BaseFrame):
 
 
 class PinFrame(BaseFrame):
-    def __init__(self, parent,
-                 pin_number: int,
-                 pin_name: str = None,
-                 on_delete_callback: callable = None,
-                 loglevel=logging.INFO):
+    def __init__(
+        self,
+        parent,
+        pin_number: int,
+        pin_name: str = None,
+        on_delete_callback: callable = None,
+        loglevel=logging.INFO,
+    ):
         super().__init__(parent, loglevel=loglevel)
 
         self._pin_number = pin_number
@@ -293,20 +315,20 @@ class PinFrame(BaseFrame):
         self._on_delete_callback = on_delete_callback
 
         self._pin_number_entry = tk.Entry(self)
-        self._pin_number_entry.grid(row=0, column=0, sticky='ew')
-        self._pin_number_entry.bind('<FocusOut>', lambda _: self._update_pin_number())
-        self._pin_number_entry.bind('<Return>', lambda _: self._update_pin_number())
+        self._pin_number_entry.grid(row=0, column=0, sticky="ew")
+        self._pin_number_entry.bind("<FocusOut>", lambda _: self._update_pin_number())
+        self._pin_number_entry.bind("<Return>", lambda _: self._update_pin_number())
 
         self._pin_name_entry = tk.Entry(self)
-        self._pin_name_entry.grid(row=0, column=1, sticky='ew')
-        self._pin_name_entry.bind('<FocusOut>', lambda _: self._update_pin_name())
-        self._pin_name_entry.bind('<Return>', lambda _: self._update_pin_name())
+        self._pin_name_entry.grid(row=0, column=1, sticky="ew")
+        self._pin_name_entry.bind("<FocusOut>", lambda _: self._update_pin_name())
+        self._pin_name_entry.bind("<Return>", lambda _: self._update_pin_name())
         if self._pin_name:
-            self._pin_name_entry.insert(0, f'{self._pin_name}')
+            self._pin_name_entry.insert(0, f"{self._pin_name}")
 
-        self._x_label = tk.Label(self, text='X', **self._red)
-        self._x_label.grid(row=0, column=2, sticky='ew')
-        self._x_label.bind('<Button-1>', lambda _: self._delete())
+        self._x_label = tk.Label(self, text="X", **self._red)
+        self._x_label.grid(row=0, column=2, sticky="ew")
+        self._x_label.bind("<Button-1>", lambda _: self._delete())
 
         self._update_pin_number()
         self._update_pin_name()
@@ -319,8 +341,8 @@ class PinFrame(BaseFrame):
         try:
             value = int(self._pin_number_entry.get())
         except ValueError:
-            self._pin_number_entry.delete(0, 'end')
-            self._pin_number_entry.insert(0, f'{self._pin_number}')
+            self._pin_number_entry.delete(0, "end")
+            self._pin_number_entry.insert(0, f"{self._pin_number}")
             return
 
         self._pin_number = value
@@ -333,7 +355,7 @@ class PinFrame(BaseFrame):
 
     def _update_pin_name(self):
         value = self._pin_name_entry.get().strip()
-        if value == '':
+        if value == "":
             # If cleared, revert to empty or number?
             # self._pin_number_entry.delete(0, 'end')
             # self._pin_number_entry.insert(0, f'{self._pin_name}')
@@ -348,111 +370,117 @@ class PinFrame(BaseFrame):
 
     @property
     def name(self):
-        return self._pin_name or self._pin_number # Fallback to number if name is empty
+        return self._pin_name or self._pin_number  # Fallback to number if name is empty
 
 
 class AddCableFrame(BaseFrame):
-    def __init__(self, parent,
-                 harness: Harness,
-                 on_save_callback: callable = None,
-                 loglevel=logging.INFO):
+    def __init__(
+        self,
+        parent,
+        harness: Harness,
+        on_save_callback: callable = None,
+        loglevel=logging.INFO,
+    ):
         super().__init__(parent, loglevel=loglevel)
 
         self._harness = harness
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text='Add Cable', **self._heading)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Label(self, text="Add Cable", **self._heading).grid(
+            row=r, column=0, columnspan=2, sticky="ew"
+        )
 
         r += 1
-        tk.Label(self, text='Name:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Name:", **self._normal).grid(row=r, column=0, sticky="e")
         self._name_entry = tk.Entry(self)
-        self._name_entry.grid(row=r, column=1, sticky='ew')
+        self._name_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Manufacturer:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Manufacturer:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._manuf_entry = tk.Entry(self)
-        self._manuf_entry.grid(row=r, column=1, sticky='ew')
+        self._manuf_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Manuf. Part Number:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Manuf. Part Number:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._mpn_entry = tk.Entry(self)
-        self._mpn_entry.grid(row=r, column=1, sticky='ew')
+        self._mpn_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Internal Part Number:', **self._normal) \
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Internal Part Number:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
         self._ipm_entry = tk.Entry(self)
-        self._ipm_entry.grid(row=r, column=1, sticky='ew')
+        self._ipm_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Type:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Type:", **self._normal).grid(row=r, column=0, sticky="e")
         self._type_entry = tk.Entry(self)
-        self._type_entry.grid(row=r, column=1, sticky='ew')
+        self._type_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Gauge Unit:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
-        self._gauge_unit_cb = ttk.Combobox(self, values=['AWG', 'mm\u00B2'])
-        self._gauge_unit_cb.grid(row=r, column=1, sticky='ew')
-        self._gauge_unit_cb.bind('<<ComboboxSelected>>', lambda _: self._update_gauge_list())
+        tk.Label(self, text="Gauge Unit:", **self._normal).grid(
+            row=r, column=0, sticky="e"
+        )
+        self._gauge_unit_cb = ttk.Combobox(self, values=["AWG", "mm\u00b2"])
+        self._gauge_unit_cb.grid(row=r, column=1, sticky="ew")
+        self._gauge_unit_cb.bind(
+            "<<ComboboxSelected>>", lambda _: self._update_gauge_list()
+        )
 
         r += 1
-        tk.Label(self, text='Gauge:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Gauge:", **self._normal).grid(row=r, column=0, sticky="e")
         self._gauge_cb = ttk.Combobox(self)
-        self._gauge_cb.grid(row=r, column=1, sticky='ew')
-        self._gauge_label = tk.Label(self, text='AWG', **self._normal)
-        self._gauge_label.grid(row=r, column=2, sticky='ew')
+        self._gauge_cb.grid(row=r, column=1, sticky="ew")
+        self._gauge_label = tk.Label(self, text="AWG", **self._normal)
+        self._gauge_label.grid(row=r, column=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Length:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Length:", **self._normal).grid(row=r, column=0, sticky="e")
         self._length_entry = tk.Entry(self)
-        self._length_entry.grid(row=r, column=1, sticky='ew')
-        tk.Label(self, text='mm', **self._normal).grid(row=r, column=2, sticky='ew')
+        self._length_entry.grid(row=r, column=1, sticky="ew")
+        tk.Label(self, text="mm", **self._normal).grid(row=r, column=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text='Shield:', **self._normal)\
-            .grid(row=r, column=0, sticky='e')
+        tk.Label(self, text="Shield:", **self._normal).grid(row=r, column=0, sticky="e")
         self._shield_var = tk.BooleanVar()
         self._shield_var.set(False)
         self._shield_cb = ttk.Checkbutton(self, variable=self._shield_var)
-        self._shield_cb.grid(row=r, column=1, sticky='ew')
+        self._shield_cb.grid(row=r, column=1, sticky="ew")
 
         r += 1
         self._wires_frame = WiresFrame(self)
-        self._wires_frame.grid(row=r, column=0, columnspan=2, sticky='ew')
+        self._wires_frame.grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text='Add Wire',
-                  command=lambda: self._wires_frame.add_wire(),
-                  **self._normal)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Button(
+            self,
+            text="Add Wire",
+            command=lambda: self._wires_frame.add_wire(),
+            **self._normal,
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text='Save Cable',
-                  command=self._save,
-                  **self._normal)\
-            .grid(row=r, column=0, columnspan=2, sticky='ew')
+        tk.Button(self, text="Save Cable", command=self._save, **self._normal).grid(
+            row=r, column=0, columnspan=2, sticky="ew"
+        )
 
     def _update_gauge_list(self):
         gauge_unit = self._gauge_unit_cb.get().strip()
         self._gauge_label.config(text=gauge_unit)
 
-        if gauge_unit == 'mm\u00B2':
+        if gauge_unit == "mm\u00b2":
             gauge_list = list(awg_equiv_table.keys())
         else:
             gauge_list = list(mm2_equiv_table.keys())
-            gauge_list += ['1/0', '2/0', '3/0', '4/0']
-            gauge_list += ['0', '00', '000', '0000']
+            gauge_list += ["1/0", "2/0", "3/0", "4/0"]
+            gauge_list += ["0", "00", "000", "0000"]
 
-        self._gauge_cb['values'] = gauge_list
+        self._gauge_cb["values"] = gauge_list
 
     def _save(self):
         name = self._name_entry.get().strip()
@@ -466,45 +494,45 @@ class AddCableFrame(BaseFrame):
         shield = self._shield_var.get()
 
         if not name:
-            showerror('Invalid Input', 'Name is required')
+            showerror("Invalid Input", "Name is required")
             return
 
         kwargs = {}
         if manuf:
-            kwargs['manufacturer'] = manuf
+            kwargs["manufacturer"] = manuf
         if mpn:
-            kwargs['mpn'] = mpn
+            kwargs["mpn"] = mpn
         if ipm:
-            kwargs['pn'] = ipm
+            kwargs["pn"] = ipm
         if type:
-            kwargs['type'] = type
-        if gauge != '':
+            kwargs["type"] = type
+        if gauge != "":
             try:
-                kwargs['gauge'] = int(gauge)
+                kwargs["gauge"] = int(gauge)
             except ValueError:
                 try:
-                    kwargs['gauge'] = float(gauge)
+                    kwargs["gauge"] = float(gauge)
                 except ValueError:
                     if gauge_unit:
-                        kwargs['gauge'] = f'{gauge} {gauge_unit}'
+                        kwargs["gauge"] = f"{gauge} {gauge_unit}"
                     else:
-                        kwargs['gauge'] = gauge
+                        kwargs["gauge"] = gauge
 
-        if gauge_unit and not isinstance(kwargs.get('gauge'), str):
-            kwargs['gauge_unit'] = gauge_unit
+        if gauge_unit and not isinstance(kwargs.get("gauge"), str):
+            kwargs["gauge_unit"] = gauge_unit
         if length:
             try:
-                kwargs['length'] = float(length)
+                kwargs["length"] = float(length)
             except ValueError as e:
-                showerror('Invalid Input', e)
+                showerror("Invalid Input", e)
                 return
 
-        kwargs['shield'] = shield
+        kwargs["shield"] = shield
 
         self._wires_frame.update_all()
         colors = self._wires_frame.colors
         if colors:
-            kwargs['colors'] = colors
+            kwargs["colors"] = colors
             # In new WireViz, if colors is used, wirecount is implied, but good to set if implicit
             # But wait, wireviz assumes wirecount if colors is set.
             # If both are present, they must match.
@@ -514,19 +542,16 @@ class AddCableFrame(BaseFrame):
         else:
             # If no colors, maybe wirecount?
             # But the UI doesn't have wirecount entry, it relies on adding wires.
-            kwargs['wirecount'] = len(self._wires_frame.wire_numbers)
+            kwargs["wirecount"] = len(self._wires_frame.wire_numbers)
 
-        cable_data = {
-            name: kwargs
-        }
+        cable_data = {name: kwargs}
 
         if self._on_save_callback is not None:
             self._on_save_callback(cable_data)
 
 
 class WiresFrame(BaseFrame):
-    def __init__(self, parent,
-                 loglevel=logging.INFO):
+    def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
         self._wire_frames = []
@@ -541,10 +566,12 @@ class WiresFrame(BaseFrame):
 
         if len(self._wire_frames) > 0:
             for i, frame in enumerate(self._wire_frames):
-                frame.grid(row=i+1, column=0, sticky='ew')
+                frame.grid(row=i + 1, column=0, sticky="ew")
             return
 
-        tk.Label(self, text='(no wires)', **self._normal).grid(row=0, column=0, sticky='ew')
+        tk.Label(self, text="(no wires)", **self._normal).grid(
+            row=0, column=0, sticky="ew"
+        )
 
     @property
     def wire_numbers(self):
@@ -579,11 +606,14 @@ class WiresFrame(BaseFrame):
 
 
 class WireFrame(BaseFrame):
-    def __init__(self, parent,
-                 wire_number: int,
-                 wire_color: str = None,
-                 on_delete_callback: callable = None,
-                 loglevel=logging.INFO):
+    def __init__(
+        self,
+        parent,
+        wire_number: int,
+        wire_color: str = None,
+        on_delete_callback: callable = None,
+        loglevel=logging.INFO,
+    ):
         super().__init__(parent, loglevel=loglevel)
 
         self._wire_number = wire_number
@@ -591,9 +621,9 @@ class WireFrame(BaseFrame):
         self._on_delete_callback = on_delete_callback
 
         self._wire_number_entry = tk.Entry(self)
-        self._wire_number_entry.grid(row=0, column=0, sticky='ew')
-        self._wire_number_entry.bind('<FocusOut>', lambda _: self._update_wire_number())
-        self._wire_number_entry.bind('<Return>', lambda _: self._update_wire_number())
+        self._wire_number_entry.grid(row=0, column=0, sticky="ew")
+        self._wire_number_entry.bind("<FocusOut>", lambda _: self._update_wire_number())
+        self._wire_number_entry.bind("<Return>", lambda _: self._update_wire_number())
 
         # Prepare color values
         # _color_full is {'BK': 'black', ...}
@@ -601,32 +631,36 @@ class WireFrame(BaseFrame):
         color_values = [f"{code}: {name}" for code, name in _color_full.items()]
 
         self._wire_color_cb = ttk.Combobox(self, values=color_values)
-        self._wire_color_cb.grid(row=0, column=1, sticky='ew')
+        self._wire_color_cb.grid(row=0, column=1, sticky="ew")
 
         # Set default
-        default_color = 'WH'
+        default_color = "WH"
         if self._wire_color:
             # Try to match existing color to formatted string
-            matching = [cv for cv in color_values if cv.startswith(f"{self._wire_color}:")]
+            matching = [
+                cv for cv in color_values if cv.startswith(f"{self._wire_color}:")
+            ]
             if matching:
                 self._wire_color_cb.set(matching[0])
             else:
                 self._wire_color_cb.set(self._wire_color)
         else:
             # Default to White if not set
-             matching = [cv for cv in color_values if cv.startswith("WH:")]
-             if matching:
-                 self._wire_color_cb.set(matching[0])
-             else:
-                 self._wire_color_cb.set("WH")
+            matching = [cv for cv in color_values if cv.startswith("WH:")]
+            if matching:
+                self._wire_color_cb.set(matching[0])
+            else:
+                self._wire_color_cb.set("WH")
 
-        self._wire_color_cb.bind('<FocusOut>', lambda _: self._update_wire_color())
-        self._wire_color_cb.bind('<Return>', lambda _: self._update_wire_color())
-        self._wire_color_cb.bind('<<ComboboxSelected>>', lambda _: self._update_wire_color())
+        self._wire_color_cb.bind("<FocusOut>", lambda _: self._update_wire_color())
+        self._wire_color_cb.bind("<Return>", lambda _: self._update_wire_color())
+        self._wire_color_cb.bind(
+            "<<ComboboxSelected>>", lambda _: self._update_wire_color()
+        )
 
-        self._x_label = tk.Label(self, text='X', **self._red)
-        self._x_label.grid(row=0, column=2, sticky='ew')
-        self._x_label.bind('<Button-1>', lambda _: self._delete())
+        self._x_label = tk.Label(self, text="X", **self._red)
+        self._x_label.grid(row=0, column=2, sticky="ew")
+        self._x_label.bind("<Button-1>", lambda _: self._delete())
 
         self._update_wire_number()
         self._update_wire_color()
@@ -639,8 +673,8 @@ class WireFrame(BaseFrame):
         try:
             value = int(self._wire_number_entry.get())
         except ValueError:
-            self._wire_number_entry.delete(0, 'end')
-            self._wire_number_entry.insert(0, f'{self._wire_number}')
+            self._wire_number_entry.delete(0, "end")
+            self._wire_number_entry.insert(0, f"{self._wire_number}")
             return
 
         self._wire_number = value
@@ -654,20 +688,20 @@ class WireFrame(BaseFrame):
     def _update_wire_color(self):
         value = self._wire_color_cb.get().strip()
         # Extract code if in format "CODE: Name"
-        if ':' in value:
-            code = value.split(':')[0].strip()
+        if ":" in value:
+            code = value.split(":")[0].strip()
             # Verify code exists in _color_full keys to be safe, or just use it
             if code in _color_full:
                 self._wire_color = code
             else:
-                self._wire_color = value # User typed custom stuff with colon?
+                self._wire_color = value  # User typed custom stuff with colon?
         else:
             self._wire_color = value
 
-        if value == '':
+        if value == "":
             # Revert?
-             self._wire_color_cb.set(self._wire_color or "")
-             return
+            self._wire_color_cb.set(self._wire_color or "")
+            return
 
     @property
     def number(self):
@@ -679,74 +713,84 @@ class WireFrame(BaseFrame):
 
 
 class AddConnectionFrame(BaseFrame):
-    def __init__(self, parent,
-                 harness: Harness,
-                 on_save_callback: callable = None,
-                 loglevel=logging.INFO):
+    def __init__(
+        self,
+        parent,
+        harness: Harness,
+        on_save_callback: callable = None,
+        loglevel=logging.INFO,
+    ):
         super().__init__(parent, loglevel=loglevel)
 
         self._harness = harness
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text='Add Connection', **self._heading) \
-            .grid(row=r, column=0, columnspan=3, sticky='ew')
+        tk.Label(self, text="Add Connection", **self._heading).grid(
+            row=r, column=0, columnspan=3, sticky="ew"
+        )
 
         connectors = list(self._harness.connectors.keys())
         cables = list(self._harness.cables.keys())
 
         r += 1
-        tk.Label(self, text='From', **self._normal)\
-            .grid(row=r, column=0, sticky='ew')
-        tk.Label(self, text='Through', **self._normal)\
-            .grid(row=r, column=1, sticky='ew')
-        tk.Label(self, text='To', **self._normal)\
-            .grid(row=r, column=2, sticky='ew')
+        tk.Label(self, text="From", **self._normal).grid(row=r, column=0, sticky="ew")
+        tk.Label(self, text="Through", **self._normal).grid(
+            row=r, column=1, sticky="ew"
+        )
+        tk.Label(self, text="To", **self._normal).grid(row=r, column=2, sticky="ew")
 
         r += 1
         self._from_connector_cb = ttk.Combobox(self, values=connectors)
-        self._from_connector_cb.grid(row=r, column=0, sticky='ew')
+        self._from_connector_cb.grid(row=r, column=0, sticky="ew")
 
         self._through_cable_cb = ttk.Combobox(self, values=cables)
-        self._through_cable_cb.grid(row=r, column=1, sticky='ew')
+        self._through_cable_cb.grid(row=r, column=1, sticky="ew")
 
         self._to_connector_cb = ttk.Combobox(self, values=connectors)
-        self._to_connector_cb.grid(row=r, column=2, sticky='ew')
+        self._to_connector_cb.grid(row=r, column=2, sticky="ew")
 
         r += 1
         self._from_conn_pin_cb = ttk.Combobox(self)
-        self._from_conn_pin_cb.grid(row=r, column=0, sticky='ew')
+        self._from_conn_pin_cb.grid(row=r, column=0, sticky="ew")
         self._from_connector_cb.bind(
-            '<<ComboboxSelected>>',
-            lambda _, fcb=self._from_connector_cb, pcb=self._from_conn_pin_cb: self._update_conn_pins(fcb, pcb))
+            "<<ComboboxSelected>>",
+            lambda _,
+            fcb=self._from_connector_cb,
+            pcb=self._from_conn_pin_cb: self._update_conn_pins(fcb, pcb),
+        )
 
         self._through_cable_pin = ttk.Combobox(self)
-        self._through_cable_pin.grid(row=r, column=1, sticky='ew')
-        self._through_cable_cb.bind('<<ComboboxSelected>>', lambda _: self._update_through_cable_pins())
+        self._through_cable_pin.grid(row=r, column=1, sticky="ew")
+        self._through_cable_cb.bind(
+            "<<ComboboxSelected>>", lambda _: self._update_through_cable_pins()
+        )
 
         self._to_conn_pin_cb = ttk.Combobox(self)
-        self._to_conn_pin_cb.grid(row=r, column=2, sticky='ew')
+        self._to_conn_pin_cb.grid(row=r, column=2, sticky="ew")
         self._to_connector_cb.bind(
-            '<<ComboboxSelected>>',
-            lambda _, fcb=self._to_connector_cb, pcb=self._to_conn_pin_cb: self._update_conn_pins(fcb, pcb))
+            "<<ComboboxSelected>>",
+            lambda _,
+            fcb=self._to_connector_cb,
+            pcb=self._to_conn_pin_cb: self._update_conn_pins(fcb, pcb),
+        )
 
         r += 1
-        tk.Button(self, text='Save Connection',
-                  command=self._save,
-                  **self._normal)\
-            .grid(row=r, column=0, columnspan=3, sticky='ew')
+        tk.Button(
+            self, text="Save Connection", command=self._save, **self._normal
+        ).grid(row=r, column=0, columnspan=3, sticky="ew")
 
     def _update_conn_pins(self, conn_cb, pin_cb):
         key = conn_cb.get()
         if key in self._harness.connectors:
             pins = self._harness.connectors[key].pinlabels
-            pin_cb['values'] = pins
+            pin_cb["values"] = pins
 
     def _update_through_cable_pins(self):
         name = self._through_cable_cb.get()
         if name in self._harness.cables:
-            wire_numbers = [i+1 for i in range(self._harness.cables[name].wirecount)]
-            self._through_cable_pin['values'] = wire_numbers
+            wire_numbers = [i + 1 for i in range(self._harness.cables[name].wirecount)]
+            self._through_cable_pin["values"] = wire_numbers
 
     def _save(self):
         from_name = self._from_connector_cb.get()
@@ -754,33 +798,33 @@ class AddConnectionFrame(BaseFrame):
         to_name = self._to_connector_cb.get()
 
         if not from_name or not via_name or not to_name:
-             showerror('Invalid Input', 'All fields are required')
-             return
+            showerror("Invalid Input", "All fields are required")
+            return
 
         from_pin = self._from_conn_pin_cb.get()
         try:
-             from_pin = int(from_pin)
+            from_pin = int(from_pin)
         except ValueError:
-             pass
+            pass
 
         via_pin = self._through_cable_pin.get()
         try:
-             via_pin = int(via_pin)
+            via_pin = int(via_pin)
         except ValueError:
-             pass
+            pass
 
         to_pin = self._to_conn_pin_cb.get()
         try:
-             to_pin = int(to_pin)
+            to_pin = int(to_pin)
         except ValueError:
-             pass
+            pass
 
         # Construct connection list
         # Format: [{from: pin}, {via: pin}, {to: pin}]
         connection_list = [
             {from_name: from_pin},
             {via_name: via_pin},
-            {to_name: to_pin}
+            {to_name: to_pin},
         ]
 
         if self._on_save_callback is not None:

@@ -596,5 +596,5 @@ connections:
     - WIRE.: [1]          # We don't care about a simple wire's designator, auto-generate please!
                           # TODO: Make it work with `- W.W4: 1`, dropping the need for `[]`
     - X2: [4]
-"""
+""",
 }
