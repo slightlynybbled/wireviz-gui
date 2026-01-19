@@ -35,6 +35,10 @@ well enough.  Go to the [releases](https://github.com/slightlynybbled/wireviz-gu
 download the `wireviz-gui_vX.X.X_YYY.exe` and execute.  This makes for a nice "try/see"
 environment.
 
+# Unit Testing
+
+    $>uv run pytest
+
 # Installation
 
 This assumes you are familiar with Python, virtual environments, and `pip`.
