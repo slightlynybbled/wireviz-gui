@@ -1,5 +1,5 @@
 import logging
-from io import StringIO
+from io import StringIO, BytesIO
 from pathlib import Path
 import tkinter as tk
 from tkinter import ttk
@@ -8,7 +8,7 @@ from tkinter.filedialog import asksaveasfilename, askopenfilename
 from tkinter.messagebox import showerror, showinfo
 
 from graphviz import ExecutableNotFound
-from PIL import ImageTk
+from PIL import ImageTk, Image
 from tk_tools import ToolTip
 from wireviz.wireviz import Harness, parse
 from wireviz.DataClasses import Connector, Cable, Metadata, Options, Tweak
@@ -229,13 +229,19 @@ class InputOutputFrame(BaseFrame):
         self._structure_view_frame.grid(row=r, column=0, sticky='ew')
 
         r += 1
-        self._text_entry_frame = TextEntryFrame(self,
-                                                on_update_callback=self.parse_text)
-        self._text_entry_frame.grid(row=r, column=0, sticky='ew')
+        self._paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
+        self._paned_window.grid(row=r, column=0, sticky='news')
 
-        r += 1
-        self._harness_view_frame = HarnessViewFrame(self)
-        self._harness_view_frame.grid(row=r, column=0, sticky='ew')
+        # Configure expansion for the paned window row
+        self.grid_rowconfigure(r, weight=1)
+        self.grid_columnconfigure(0, weight=1)
+
+        self._text_entry_frame = TextEntryFrame(self._paned_window,
+                                                on_update_callback=self.parse_text)
+        self._harness_view_frame = HarnessViewFrame(self._paned_window)
+
+        self._paned_window.add(self._text_entry_frame, weight=1)
+        self._paned_window.add(self._harness_view_frame, weight=3)
 
     def _update_yaml_section(self, section, new_data):
         current_text = self._text_entry_frame.get()
@@ -485,12 +491,7 @@ class InputOutputFrame(BaseFrame):
 
     def refresh_view(self, png_data=None):
         if png_data:
-            try:
-                photo = ImageTk.PhotoImage(data=png_data)
-                self._harness_view_frame.update_image(photo_image=photo)
-            except Exception as e:
-                showerror('Graph Creation Error', f'There was an error parsing the last request: {e}')
-                return
+            self._harness_view_frame.update_image(png_data)
 
         self._structure_view_frame.refresh()
 
@@ -662,16 +663,84 @@ class HarnessViewFrame(BaseFrame):
     def __init__(self, parent, loglevel=logging.INFO):
         super().__init__(parent, loglevel=loglevel)
 
-        self._label = tk.Label(self, text='(no harness defined)')
-        self._label.grid(row=0, column=0, sticky='ew')
-        self._pi = None  # photoimage data
+        # Configure grid for canvas and scrollbars
+        self.grid_rowconfigure(0, weight=1)
+        self.grid_columnconfigure(0, weight=1)
 
-    def update_image(self, photo_image: ImageTk.PhotoImage):
-        self._pi = photo_image
-        self._label.config(
-            text=None,
-            image=photo_image
-        )
+        self._canvas = tk.Canvas(self, bg='white')
+        self._canvas.grid(row=0, column=0, sticky='news')
+
+        self._v_scroll = tk.Scrollbar(self, orient='vertical', command=self._canvas.yview)
+        self._v_scroll.grid(row=0, column=1, sticky='ns')
+
+        self._h_scroll = tk.Scrollbar(self, orient='horizontal', command=self._canvas.xview)
+        self._h_scroll.grid(row=1, column=0, sticky='ew')
+
+        self._canvas.configure(yscrollcommand=self._v_scroll.set, xscrollcommand=self._h_scroll.set)
+
+        self._image = None
+        self._tk_image = None
+        self._scale = 1.0
+
+        # Bindings for Pan and Zoom
+        self._canvas.bind('<ButtonPress-1>', self._on_move_press)
+        self._canvas.bind('<B1-Motion>', self._on_move_drag)
+        self._canvas.bind('<MouseWheel>', self._on_zoom)
+        self._canvas.bind('<Button-4>', self._on_zoom)
+        self._canvas.bind('<Button-5>', self._on_zoom)
+
+    def _on_move_press(self, event):
+        self._canvas.scan_mark(event.x, event.y)
+
+    def _on_move_drag(self, event):
+        self._canvas.scan_dragto(event.x, event.y, gain=1)
+
+    def _on_zoom(self, event):
+        if not self._image:
+            return
+
+        if event.num == 4 or event.delta > 0:
+            self._scale *= 1.1
+        elif event.num == 5 or event.delta < 0:
+            self._scale /= 1.1
+
+        self._redraw()
+
+    def update_image(self, png_data):
+        if not png_data:
+            return
+
+        try:
+            self._image = Image.open(BytesIO(png_data))
+            self._scale = 1.0
+            self._redraw()
+        except Exception as e:
+            self._logger.error(f'Error loading image: {e}')
+            from tkinter.messagebox import showerror
+            showerror('Graph Creation Error', f'There was an error parsing the last request: {e}')
+
+    def _redraw(self):
+        if not self._image:
+            return
+
+        w, h = self._image.size
+        new_w = int(w * self._scale)
+        new_h = int(h * self._scale)
+
+        if new_w <= 0 or new_h <= 0:
+            return
+
+        try:
+            resample = Image.Resampling.LANCZOS
+        except AttributeError:
+            resample = Image.ANTIALIAS
+
+        resized = self._image.resize((new_w, new_h), resample)
+        self._tk_image = ImageTk.PhotoImage(resized)
+
+        self._canvas.delete('all')
+        self._canvas.create_image(0, 0, image=self._tk_image, anchor='nw')
+        self._canvas.configure(scrollregion=self._canvas.bbox('all'))
 
 
 if __name__ == '__main__':
