@@ -23,6 +23,52 @@ from wireviz_gui.menus import Menu
 from wireviz_gui.examples import EXAMPLES
 
 
+def normalize_connections(data):
+    if not isinstance(data, dict) or 'connections' not in data:
+        return data
+
+    connections = data['connections']
+    if not isinstance(connections, list):
+        return data
+
+    new_connections = []
+    modified = False
+
+    for conn in connections:
+        if isinstance(conn, dict):
+            keys = list(conn.keys())
+            if len(keys) == 0:
+                continue
+
+            start_node = keys[0]
+            value = conn[start_node]
+
+            if isinstance(value, list):
+                for item in value:
+                    path = [start_node]
+                    if isinstance(item, dict):
+                        if len(item) > 0:
+                            k = list(item.keys())[0]
+                            v = list(item.values())[0]
+                            path.append(v)
+                            path.append(k)
+                    else:
+                        path.append(item)
+                    new_connections.append(path)
+            else:
+                path = [start_node, value]
+                new_connections.append(path)
+
+            modified = True
+        else:
+            new_connections.append(conn)
+
+    if modified:
+        data['connections'] = new_connections
+
+    return data
+
+
 class Application(tk.Tk):
     def __init__(self, loglevel=logging.INFO, **kwargs):
         self._logger = logging.getLogger(self.__class__.__name__)
@@ -276,7 +322,9 @@ class InputOutputFrame(BaseFrame):
 
             # Validate YAML before saving
             try:
-                parse(inp=yaml_input, return_types=('harness',))
+                data = yaml.safe_load(yaml_input)
+                data = normalize_connections(data)
+                parse(inp=data, return_types=('harness',))
             except YAMLError as e:
                 showerror('Save Error', f'Invalid YAML content:\n{e}')
                 return
@@ -299,7 +347,9 @@ class InputOutputFrame(BaseFrame):
 
         # Validate YAML before saving
         try:
-            parse(inp=yaml_input, return_types=('harness',))
+            data = yaml.safe_load(yaml_input)
+            data = normalize_connections(data)
+            parse(inp=data, return_types=('harness',))
         except YAMLError as e:
             showerror('Save Error', f'Invalid YAML content:\n{e}')
             return
@@ -335,8 +385,10 @@ class InputOutputFrame(BaseFrame):
 
         if yaml_input.strip() != '':
             try:
+                data = yaml.safe_load(yaml_input)
+                data = normalize_connections(data)
                 parse(
-                    inp=yaml_input,
+                    inp=data,
                     output_dir=path.parent,
                     output_name=path.stem,
                     output_formats=('png', 'svg', 'html'),
@@ -357,8 +409,10 @@ class InputOutputFrame(BaseFrame):
         yaml_input = self._text_entry_frame.get()
         if yaml_input.strip() != '':
             try:
+                data = yaml.safe_load(yaml_input)
+                data = normalize_connections(data)
                 png_data, new_harness = parse(
-                    inp=yaml_input,
+                    inp=data,
                     return_types=('png', 'harness')
                 )
                 self._harness.connectors = new_harness.connectors
