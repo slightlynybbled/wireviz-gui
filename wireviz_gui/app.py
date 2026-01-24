@@ -23,16 +23,52 @@ from wireviz_gui.menus import Menu
 from wireviz_gui.examples import EXAMPLES
 
 
-def normalize_connections(data):
-    if not isinstance(data, dict) or 'connections' not in data:
+def preprocess_yaml_data(data):
+    """
+    Preprocess the YAML data to handle compatibility issues and normalize connections.
+    - Moves 'label' from cables to 'notes' (compatibility fix).
+    - Resolves 'Connector.Pin' syntax in connections to {Connector: Pin} (syntax fix).
+    - Flattens nested dictionary connections (star topology).
+    """
+    if not isinstance(data, dict):
+        return data
+
+    # Fix: Handle Cable labels by moving them to notes
+    if 'cables' in data and isinstance(data['cables'], dict):
+        for cable_name, cable_data in data['cables'].items():
+            if isinstance(cable_data, dict) and 'label' in cable_data:
+                label = cable_data.pop('label')
+                if 'notes' in cable_data:
+                     cable_data['notes'] = str(cable_data['notes']) + "\n" + str(label)
+                else:
+                     cable_data['notes'] = str(label)
+
+    if 'connections' not in data:
         return data
 
     connections = data['connections']
     if not isinstance(connections, list):
         return data
 
+    # Get known connectors (designators) to support Connector.Pin syntax
+    known_connectors = set()
+    if 'connectors' in data and isinstance(data['connectors'], dict):
+        known_connectors = set(data['connectors'].keys())
+
     new_connections = []
-    modified = False
+
+    # Helper to parse node string into wireviz compatible format
+    def parse_node(node_str):
+        # Fix: Handle Connector.Pin syntax
+        if isinstance(node_str, str) and '.' in node_str:
+            parts = node_str.split('.')
+            if len(parts) == 2:
+                designator = parts[0]
+                pin = parts[1]
+                if designator in known_connectors:
+                    # It is Connector.Pin, convert to {Designator: Pin}
+                    return {designator: pin}
+        return node_str
 
     for conn in connections:
         if isinstance(conn, dict):
@@ -45,28 +81,32 @@ def normalize_connections(data):
 
             if isinstance(value, list):
                 for item in value:
-                    path = [start_node]
+                    p = [parse_node(start_node)]
                     if isinstance(item, dict):
                         if len(item) > 0:
                             k = list(item.keys())[0]
                             v = list(item.values())[0]
-                            path.append(v)
-                            path.append(k)
+                            p.append(parse_node(v))
+                            p.append(parse_node(k))
                     else:
-                        path.append(item)
-                    new_connections.append(path)
+                        p.append(parse_node(item))
+                    new_connections.append(p)
             else:
-                path = [start_node, value]
-                new_connections.append(path)
-
-            modified = True
+                p = [parse_node(start_node), parse_node(value)]
+                new_connections.append(p)
         else:
-            new_connections.append(conn)
+            # If it's a list, we should also check for Connector.Pin syntax in its items
+            if isinstance(conn, list):
+                new_conn = [parse_node(item) for item in conn]
+                new_connections.append(new_conn)
+            else:
+                new_connections.append(conn)
 
-    if modified:
-        data['connections'] = new_connections
-
+    data['connections'] = new_connections
     return data
+
+# Alias for backward compatibility if needed, though mostly internal
+normalize_connections = preprocess_yaml_data
 
 
 class Application(tk.Tk):
