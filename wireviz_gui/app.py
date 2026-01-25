@@ -164,12 +164,17 @@ class Application(tk.Tk):
             if self.get_active_frame()
             else None,
             about=self._about,
+            new_file=lambda: self.add_tab(),
             load_example=self.add_tab,
             close_tab=self.close_current_tab,
             examples=EXAMPLES,
         )
         self.config(menu=self._menu)
 
+        self.bind_all(
+            "<Control-n>",
+            lambda _: self.add_tab(),
+        )
         self.bind_all(
             "<Control-o>",
             lambda _: self.get_active_frame().open_file()
@@ -464,6 +469,7 @@ class InputOutputFrame(BaseFrame):
             return
 
         file_name = asksaveasfilename(
+            title="Export Graph Image",
             defaultextension=".png",
             filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
         )
@@ -473,7 +479,7 @@ class InputOutputFrame(BaseFrame):
         self._harness_view_frame.save_image(file_name)
 
     def export_all(self):
-        file_name = asksaveasfilename()
+        file_name = asksaveasfilename(title="Export All Formats")
         if file_name is None or file_name.strip() == "":
             return
 
