@@ -35,28 +35,31 @@ well enough.  Go to the [releases](https://github.com/slightlynybbled/wireviz-gu
 download the `wireviz-gui_vX.X.X_YYY.exe` and execute.  This makes for a nice "try/see"
 environment.
 
+# Unit Testing
+
+ ```bash
+ uv run pytest
+ ```
+
 # Installation
 
-This assumes you are familiar with Python, virtual environments, and `pip`.
+This assumes you are using `uv` to manage your virtual environments
 
 1. **Clone this repository:**
-   ```bash
-   git clone https://github.com/slightlynybbled/wireviz-gui
-   cd wireviz-gui
-   ```
 
-2. **Create and activate a virtual environment:**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate  # On Windows, use `venv\Scripts\activate`
-   ```
+```bash
+git clone https://github.com/slightlynybbled/wireviz-gui
+cd wireviz-gui
+```
 
-3. **Install dependencies:**
-   ```bash
-   pip install -r requirements.txt
-   ```
+2. **Create, active your virtual environments, and install dependencies:**
 
-4. **Run the application:**
-   ```bash
-   python -m wireviz_gui
-   ```
+```bash
+uv sync
+```
+
+3. **Run the application:**
+
+```bash
+uv run -m wireviz_gui
+```
