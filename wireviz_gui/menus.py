@@ -11,11 +11,12 @@ class Menu(BaseMenu):
         open_file: callable,
         save: callable,
         save_as: callable,
-                 save_graph_image: callable,
+        save_graph_image: callable,
         export_all: callable,
         refresh: callable,
         reload_file: callable,
         about: callable,
+        new_file: callable = None,
         load_example: callable = None,
         close_tab: callable = None,
         examples: dict = None,
@@ -35,6 +36,7 @@ class Menu(BaseMenu):
                 export_all=export_all,
                 refresh=refresh,
                 reload_file=reload_file,
+                new_file=new_file,
                 load_example=load_example,
                 close_tab=close_tab,
                 examples=examples,
@@ -54,6 +56,7 @@ class FileMenu(BaseMenu):
         export_all: callable,
         refresh: callable,
         reload_file: callable,
+        new_file: callable = None,
         load_example: callable = None,
         close_tab: callable = None,
         examples: dict = None,
@@ -62,11 +65,23 @@ class FileMenu(BaseMenu):
     ):
         super().__init__(parent=parent, loglevel=loglevel, **kwargs)
 
+        if new_file:
+            self.add_command(label="New (CTRL+N)", command=lambda: new_file())
+
         self.add_command(label="Open (CTRL+O)", command=lambda: open_file())
+        self.add_separator()
         self.add_command(label="Save (CTRL+S)", command=lambda: save())
-        self.add_command(label="Save As", command=lambda: save_as())
-        self.add_command(label="Save Graph Image", command=lambda: save_graph_image())
-        self.add_command(label="Export All", command=lambda: export_all())
+        self.add_command(label="Save As...", command=lambda: save_as())
+        self.add_separator()
+
+        export_menu = tk.Menu(self, tearoff=0)
+        export_menu.add_command(
+            label="Graph Image (PNG)...", command=lambda: save_graph_image()
+        )
+        export_menu.add_command(
+            label="All Formats (PNG, SVG, HTML)...", command=lambda: export_all()
+        )
+        self.add_cascade(label="Export", menu=export_menu)
 
         if examples and load_example:
             examples_menu = tk.Menu(self, tearoff=0)
@@ -76,6 +91,7 @@ class FileMenu(BaseMenu):
                 )
             self.add_cascade(label="Examples", menu=examples_menu)
 
+        self.add_separator()
         self.add_command(label="Refresh Image (CTRL+L)", command=lambda: refresh())
         self.add_command(label="Reload File (CTRL+R)", command=lambda: reload_file())
 
