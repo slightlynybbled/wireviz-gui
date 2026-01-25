@@ -139,6 +139,7 @@ class Application(tk.Tk):
                           open_file=lambda: self.get_active_frame().open_file() if self.get_active_frame() else None,
                           save=lambda: self.get_active_frame().save_file() if self.get_active_frame() else None,
                           save_as=lambda: self.get_active_frame().save_as_file() if self.get_active_frame() else None,
+                          save_graph_image=lambda: self.get_active_frame().save_graph_image() if self.get_active_frame() else None,
                           export_all=lambda: self.get_active_frame().export_all() if self.get_active_frame() else None,
                           refresh=lambda: self.get_active_frame().parse_text() if self.get_active_frame() else None,
                           reload_file=lambda: self.get_active_frame().reload_file() if self.get_active_frame() else None,
@@ -218,6 +219,7 @@ class InputOutputFrame(BaseFrame):
                                          on_click_add_cable=self.add_cable,
                                          on_click_add_connection=self.add_connection,
                                          on_click_add_mate=self.add_mate,
+                                         on_click_save_image=self.save_graph_image,
                                          on_click_export=self.export_all,
                                          on_click_refresh=self.parse_text)
         self._button_frame.grid(row=r, column=0, sticky='ew')
@@ -421,6 +423,20 @@ class InputOutputFrame(BaseFrame):
         """Deprecated: use save_file or save_as_file"""
         self.save_file()
 
+    def save_graph_image(self):
+        if not self._harness_view_frame.has_image():
+            showinfo('Save Image', 'No image to save.')
+            return
+
+        file_name = asksaveasfilename(
+            defaultextension=".png",
+            filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+        )
+        if not file_name:
+            return
+
+        self._harness_view_frame.save_image(file_name)
+
     def export_all(self):
         file_name = asksaveasfilename()
         if file_name is None or file_name.strip() == '':
@@ -583,6 +599,7 @@ class ButtonFrame(BaseFrame):
                  on_click_add_cable: callable,
                  on_click_add_connection: callable,
                  on_click_add_mate: callable,
+                 on_click_save_image: callable,
                  on_click_export: callable,
                  on_click_refresh: callable,
                  loglevel=logging.INFO):
@@ -614,9 +631,14 @@ class ButtonFrame(BaseFrame):
 
         c += 1
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
+        save_img_btn = tk.Button(self, image=self._export_img, command=on_click_save_image)
+        save_img_btn.grid(row=0, column=c, sticky='ew')
+        ToolTip(save_img_btn, 'Save Graph Image')
+
+        c += 1
         export_img_btn = tk.Button(self, image=self._export_img, command=on_click_export)
         export_img_btn.grid(row=0, column=c, sticky='ew')
-        ToolTip(export_img_btn, 'Export Image')
+        ToolTip(export_img_btn, 'Export All')
 
         c += 1
         self._refresh_img = tk.PhotoImage(data=refresh_fill)
@@ -705,6 +727,17 @@ class HarnessViewFrame(BaseFrame):
             self._scale /= 1.1
 
         self._redraw()
+
+    def has_image(self):
+        return self._image is not None
+
+    def save_image(self, filepath):
+        if self._image:
+            try:
+                self._image.save(filepath)
+            except Exception as e:
+                self._logger.error(f'Error saving image: {e}')
+                showerror('Save Error', f'Could not save image:\n{e}')
 
     def update_image(self, png_data):
         if not png_data:

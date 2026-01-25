@@ -9,6 +9,7 @@ class Menu(BaseMenu):
                  open_file: callable,
                  save: callable,
                  save_as: callable,
+                 save_graph_image: callable,
                  export_all: callable,
                  refresh: callable,
                  reload_file: callable,
@@ -23,6 +24,7 @@ class Menu(BaseMenu):
                                                      open_file=open_file,
                                                      save=save,
                                                      save_as=save_as,
+                                                     save_graph_image=save_graph_image,
                                                      export_all=export_all,
                                                      refresh=refresh,
                                                      reload_file=reload_file,
@@ -37,6 +39,7 @@ class FileMenu(BaseMenu):
                  open_file: callable,
                  save: callable,
                  save_as: callable,
+                 save_graph_image: callable,
                  export_all: callable,
                  refresh: callable,
                  reload_file: callable,
@@ -49,6 +52,7 @@ class FileMenu(BaseMenu):
         self.add_command(label='Open (CTRL+O)', command=lambda: open_file())
         self.add_command(label='Save (CTRL+S)', command=lambda: save())
         self.add_command(label='Save As', command=lambda: save_as())
+        self.add_command(label='Save Graph Image', command=lambda: save_graph_image())
         self.add_command(label='Export All', command=lambda: export_all())
 
         if examples and load_example:
