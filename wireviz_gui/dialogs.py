@@ -2,6 +2,7 @@ import logging
 import tkinter as tk
 from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
+from typing import Callable, Optional
 import webbrowser
 
 from wireviz.DataClasses import Connector, Cable, Connection
@@ -9,7 +10,7 @@ from wireviz.wireviz import Harness
 from wireviz.wv_colors import _color_full
 from wireviz.wv_helper import awg_equiv_table, mm2_equiv_table
 
-from wireviz_gui._base import BaseFrame
+from wireviz_gui._base import AlertLabel, BaseFrame, HeadLabel, NormButton, NormLabel
 from wireviz_gui.images import logo
 
 
@@ -51,7 +52,7 @@ class AboutFrame(BaseFrame):
         wireviz_label.grid(row=r, column=1, sticky="w")
         wireviz_label.bind(
             "<Button-1>",
-            lambda _: webbrowser.open("https://github.com/formatc1702/WireViz"),
+            lambda _: webbrowser.open("https://github.com/wireviz/WireViz"),
         )
 
         r += 1
@@ -80,8 +81,8 @@ class AddConnectorFrame(BaseFrame):
         self,
         parent,
         harness: Harness,
-        connector_name: str = None,
-        on_save_callback: callable = None,
+        connector_name: Optional[str] = None,
+        on_save_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -91,45 +92,56 @@ class AddConnectorFrame(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text="Add Connector", **self._heading).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        HeadLabel(
+            self,
+            text="Add Connector",
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Name:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Name:",
+        ).grid(row=r, column=0, sticky="e")
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Manufacturer:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Manufacturer:",
+        ).grid(row=r, column=0, sticky="e")
         self._manuf_entry = tk.Entry(self)
         self._manuf_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Manuf. Part Number:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Manuf. Part Number:",
+        ).grid(row=r, column=0, sticky="e")
         self._mpn_entry = tk.Entry(self)
         self._mpn_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Internal Part Number:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Internal Part Number:",
+        ).grid(row=r, column=0, sticky="e")
         self._ipm_entry = tk.Entry(self)
         self._ipm_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Type:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Type:",
+        ).grid(row=r, column=0, sticky="e")
         self._type_entry = tk.Entry(self)
         self._type_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Sub-Type:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Sub-Type:",
+        ).grid(row=r, column=0, sticky="e")
         self._subtype_entry = tk.Entry(self)
         self._subtype_entry.grid(row=r, column=1, sticky="ew")
 
@@ -138,22 +150,25 @@ class AddConnectorFrame(BaseFrame):
         self._pins_frame.grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(
+        NormButton(
             self,
             text="Add Pin",
             command=lambda: self._pins_frame.add_pin(),
-            **self._normal,
         ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text="Save Connector", command=self._save, **self._normal).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        NormButton(
+            self,
+            text="Save Connector",
+            command=self._save,
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         if self._connector_name is not None:
             r += 1
-            tk.Button(
-                self, text="Delete Connector", command=self._delete, **self._normal
+            NormButton(
+                self,
+                text="Delete Connector",
+                command=self._delete,
             ).grid(row=r, column=0, columnspan=2, sticky="ew")
             self._load()
 
@@ -185,7 +200,7 @@ class AddConnectorFrame(BaseFrame):
             self._subtype_entry.insert(0, connector.subtype)
 
         # load PinsFrame
-        self._pins_frame.load(connector.pinlabels, connector.pinout)
+        self._pins_frame.load(connector.pinlabels, connector.pinlabels)
 
     def _save(self):
         name = self._name_entry.get().strip()
@@ -304,8 +319,8 @@ class PinFrame(BaseFrame):
         self,
         parent,
         pin_number: int,
-        pin_name: str = None,
-        on_delete_callback: callable = None,
+        pin_name: Optional[str] = None,
+        on_delete_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -326,7 +341,10 @@ class PinFrame(BaseFrame):
         if self._pin_name:
             self._pin_name_entry.insert(0, f"{self._pin_name}")
 
-        self._x_label = tk.Label(self, text="X", **self._red)
+        self._x_label = AlertLabel(
+            self,
+            text="X",
+        )
         self._x_label.grid(row=0, column=2, sticky="ew")
         self._x_label.bind("<Button-1>", lambda _: self._delete())
 
@@ -378,7 +396,7 @@ class AddCableFrame(BaseFrame):
         self,
         parent,
         harness: Harness,
-        on_save_callback: callable = None,
+        on_save_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -387,45 +405,56 @@ class AddCableFrame(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text="Add Cable", **self._heading).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        HeadLabel(
+            self,
+            text="Add Cable",
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Name:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Name:",
+        ).grid(row=r, column=0, sticky="e")
         self._name_entry = tk.Entry(self)
         self._name_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Manufacturer:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Manufacturer:",
+        ).grid(row=r, column=0, sticky="e")
         self._manuf_entry = tk.Entry(self)
         self._manuf_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Manuf. Part Number:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Manuf. Part Number:",
+        ).grid(row=r, column=0, sticky="e")
         self._mpn_entry = tk.Entry(self)
         self._mpn_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Internal Part Number:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Internal Part Number:",
+        ).grid(row=r, column=0, sticky="e")
         self._ipm_entry = tk.Entry(self)
         self._ipm_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Type:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Type:",
+        ).grid(row=r, column=0, sticky="e")
         self._type_entry = tk.Entry(self)
         self._type_entry.grid(row=r, column=1, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Gauge Unit:", **self._normal).grid(
-            row=r, column=0, sticky="e"
-        )
+        NormLabel(
+            self,
+            text="Gauge Unit:",
+        ).grid(row=r, column=0, sticky="e")
         self._gauge_unit_cb = ttk.Combobox(self, values=["AWG", "mm\u00b2"])
         self._gauge_unit_cb.grid(row=r, column=1, sticky="ew")
         self._gauge_unit_cb.bind(
@@ -433,20 +462,35 @@ class AddCableFrame(BaseFrame):
         )
 
         r += 1
-        tk.Label(self, text="Gauge:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Gauge:",
+        ).grid(row=r, column=0, sticky="e")
         self._gauge_cb = ttk.Combobox(self)
         self._gauge_cb.grid(row=r, column=1, sticky="ew")
-        self._gauge_label = tk.Label(self, text="AWG", **self._normal)
+        self._gauge_label = NormLabel(
+            self,
+            text="AWG",
+        )
         self._gauge_label.grid(row=r, column=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Length:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Length:",
+        ).grid(row=r, column=0, sticky="e")
         self._length_entry = tk.Entry(self)
         self._length_entry.grid(row=r, column=1, sticky="ew")
-        tk.Label(self, text="mm", **self._normal).grid(row=r, column=2, sticky="ew")
+        NormLabel(
+            self,
+            text="mm",
+        ).grid(row=r, column=2, sticky="ew")
 
         r += 1
-        tk.Label(self, text="Shield:", **self._normal).grid(row=r, column=0, sticky="e")
+        NormLabel(
+            self,
+            text="Shield:",
+        ).grid(row=r, column=0, sticky="e")
         self._shield_var = tk.BooleanVar()
         self._shield_var.set(False)
         self._shield_cb = ttk.Checkbutton(self, variable=self._shield_var)
@@ -457,17 +501,18 @@ class AddCableFrame(BaseFrame):
         self._wires_frame.grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(
+        NormButton(
             self,
             text="Add Wire",
             command=lambda: self._wires_frame.add_wire(),
-            **self._normal,
         ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
         r += 1
-        tk.Button(self, text="Save Cable", command=self._save, **self._normal).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        NormButton(
+            self,
+            text="Save Cable",
+            command=self._save,
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
     def _update_gauge_list(self):
         gauge_unit = self._gauge_unit_cb.get().strip()
@@ -610,8 +655,8 @@ class WireFrame(BaseFrame):
         self,
         parent,
         wire_number: int,
-        wire_color: str = None,
-        on_delete_callback: callable = None,
+        wire_color: Optional[str] = None,
+        on_delete_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -658,7 +703,7 @@ class WireFrame(BaseFrame):
             "<<ComboboxSelected>>", lambda _: self._update_wire_color()
         )
 
-        self._x_label = tk.Label(self, text="X", **self._red)
+        self._x_label = AlertLabel(self, text="X", **self._red)
         self._x_label.grid(row=0, column=2, sticky="ew")
         self._x_label.bind("<Button-1>", lambda _: self._delete())
 
@@ -717,7 +762,7 @@ class AddConnectionFrame(BaseFrame):
         self,
         parent,
         harness: Harness,
-        on_save_callback: callable = None,
+        on_save_callback: Optional[Callable] = None,
         loglevel=logging.INFO,
     ):
         super().__init__(parent, loglevel=loglevel)
@@ -726,19 +771,20 @@ class AddConnectionFrame(BaseFrame):
         self._on_save_callback = on_save_callback
 
         r = 0
-        tk.Label(self, text="Add Connection", **self._heading).grid(
-            row=r, column=0, columnspan=3, sticky="ew"
-        )
+        HeadLabel(
+            self,
+            text="Add Connection",
+        ).grid(row=r, column=0, columnspan=3, sticky="ew")
 
         connectors = list(self._harness.connectors.keys())
         cables = list(self._harness.cables.keys())
 
         r += 1
-        tk.Label(self, text="From", **self._normal).grid(row=r, column=0, sticky="ew")
-        tk.Label(self, text="Through", **self._normal).grid(
+        NormLabel(self, text="From", ).grid(row=r, column=0, sticky="ew")
+        NormLabel(self, text="Through", ).grid(
             row=r, column=1, sticky="ew"
         )
-        tk.Label(self, text="To", **self._normal).grid(row=r, column=2, sticky="ew")
+        NormLabel(self, text="To", ).grid(row=r, column=2, sticky="ew")
 
         r += 1
         self._from_connector_cb = ttk.Combobox(self, values=connectors)
@@ -776,8 +822,10 @@ class AddConnectionFrame(BaseFrame):
         )
 
         r += 1
-        tk.Button(
-            self, text="Save Connection", command=self._save, **self._normal
+        NormButton(
+            self,
+            text="Save Connection",
+            command=self._save,
         ).grid(row=r, column=0, columnspan=3, sticky="ew")
 
     def _update_conn_pins(self, conn_cb, pin_cb):

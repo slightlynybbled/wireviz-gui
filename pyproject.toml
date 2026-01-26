@@ -1,6 +1,6 @@
 [project]
 name = "wireviz-gui"
-version = "0.3.0"
+version = "0.3.1"
 readme = "readme.md"
 requires-python = ">=3.14"
 dependencies = [
@@ -14,6 +14,8 @@ dependencies = [
 
 [dependency-groups]
 dev = [
+    "pyinstaller>=6.18.0",
     "pytest>=9.0.2",
     "ruff>=0.14.13",
+    "types-pyyaml>=6.0.12.20250915",
 ]
