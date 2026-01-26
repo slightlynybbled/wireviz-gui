@@ -37,9 +37,9 @@ environment.
 
 # Unit Testing
 
- ```bash
- uv run pytest
- ```
+```bash
+uv run pytest
+```
 
 # Installation
 
