@@ -14,6 +14,7 @@ from wireviz.wireviz import parse
 # Memory says: "The file tests/test_dialog_integration.py contains integration tests for dialog classes ... utilizing unittest.mock to patch tkinter components for headless testing."
 # So I should check that file.
 
+
 class TestIssueRepro(unittest.TestCase):
     def test_parse_user_yaml(self):
         # This test is expected to fail before fixes are applied
@@ -175,21 +176,23 @@ connections:
             # Fallback if headless
             import sys
             from unittest.mock import MagicMock
-            sys.modules['tkinter'] = MagicMock()
-            sys.modules['tkinter.ttk'] = MagicMock()
-            sys.modules['tkinter.filedialog'] = MagicMock()
-            sys.modules['tkinter.messagebox'] = MagicMock()
+
+            sys.modules["tkinter"] = MagicMock()
+            sys.modules["tkinter.ttk"] = MagicMock()
+            sys.modules["tkinter.filedialog"] = MagicMock()
+            sys.modules["tkinter.messagebox"] = MagicMock()
             from wireviz_gui.app import normalize_connections
 
         normalized_data = normalize_connections(data)
 
         # With current implementation, this should fail at parse step
         try:
-            parse(inp=normalized_data, return_types=('harness',))
+            parse(inp=normalized_data, return_types=("harness",))
         except Exception as e:
             # We expect failure currently
             print(f"Caught expected error: {e}")
             raise e
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     unittest.main()
