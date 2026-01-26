@@ -73,7 +73,7 @@ class AddMateDialog(BaseFrame):
         self._update_arrow_directions()
 
         r += 1
-        NormButton(self, text="Save Mate", command=self._save, **self._normal).grid(
+        NormButton(self, text="Save Mate", command=self._save, ).grid(
             row=r, column=0, columnspan=2, sticky="ew"
         )
 

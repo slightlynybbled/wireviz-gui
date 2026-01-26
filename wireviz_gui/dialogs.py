@@ -242,7 +242,7 @@ class AddConnectorFrame(BaseFrame):
             # If name matches label, it might be redundant, but WireViz uses pinout for text display.
             # Let's include it if present.
             if any(str(n) != str(l) for n, l in zip(pinout, pinlabels)):
-                kwargs["pinout"] = pinout
+                kwargs["pinlabels"] = pinout
 
         connector_data = {name: kwargs}
 
@@ -703,7 +703,7 @@ class WireFrame(BaseFrame):
             "<<ComboboxSelected>>", lambda _: self._update_wire_color()
         )
 
-        self._x_label = AlertLabel(self, text="X", **self._red)
+        self._x_label = AlertLabel(self, text="X", )
         self._x_label.grid(row=0, column=2, sticky="ew")
         self._x_label.bind("<Button-1>", lambda _: self._delete())
 
