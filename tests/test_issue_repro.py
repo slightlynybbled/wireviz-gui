@@ -1,6 +1,8 @@
 import unittest
+
 import yaml
 from wireviz.wireviz import parse
+
 # We will import the function to be tested after we modify app.py,
 # but for now we can just use the logic or try to import it if we mock things.
 # Since app.py has GUI code, importing it might trigger Tkinter.

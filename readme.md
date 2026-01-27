@@ -41,6 +41,16 @@ environment.
 uv run pytest
 ```
 
+# `ruff` checks
+
+```bash
+uv run ruff check wireviz_gui
+```
+
+```bash
+uv run ruff format wireviz_gui
+```
+
 # Installation
 
 This assumes you are using `uv` to manage your virtual environments

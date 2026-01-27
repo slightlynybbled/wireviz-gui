@@ -1,6 +1,6 @@
+import sys
 import unittest
 from unittest.mock import MagicMock, patch
-import sys
 
 # Patch importlib.metadata.version
 patch_version = patch("importlib.metadata.version", return_value="0.0.0+test")
@@ -109,7 +109,7 @@ class TestMenuStructure(unittest.TestCase):
 
     def test_menu_passes_new_file(self):
         with patch.dict(sys.modules, {"tkinter": FakeTkModule}):
-            from wireviz_gui.menus import Menu, FileMenu
+            from wireviz_gui.menus import FileMenu, Menu
             # For this test, we want to intercept FileMenu creation inside Menu.
             # But changing FileMenu inside the module after import is hard.
             # However, we can inspect the created menu if we can access it.

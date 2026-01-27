@@ -1,10 +1,12 @@
 import unittest
 from unittest.mock import MagicMock, patch
+
 import yaml
-from wireviz.wireviz import Harness
 from wireviz.DataClasses import Metadata, Options, Tweak
+from wireviz.wireviz import Harness
+
 from wireviz_gui.app import Application, InputOutputFrame
-from wireviz_gui.dialogs import AddConnectorFrame, AddCableFrame, AddConnectionFrame
+from wireviz_gui.dialogs import AddCableFrame, AddConnectionFrame, AddConnectorFrame
 from wireviz_gui.mating_dialog import AddMateDialog
 
 

@@ -1,9 +1,8 @@
 import logging
 import tkinter as tk
-from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
+from tkinter.messagebox import showerror
 from typing import Callable, Optional
-import webbrowser
 
 from wireviz.wireviz import Harness
 
@@ -73,9 +72,11 @@ class AddMateDialog(BaseFrame):
         self._update_arrow_directions()
 
         r += 1
-        NormButton(self, text="Save Mate", command=self._save, ).grid(
-            row=r, column=0, columnspan=2, sticky="ew"
-        )
+        NormButton(
+            self,
+            text="Save Mate",
+            command=self._save,
+        ).grid(row=r, column=0, columnspan=2, sticky="ew")
 
     def _update_arrow_directions(self):
         for child in self._arrow_direction_frame.winfo_children():

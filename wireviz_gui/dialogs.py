@@ -1,11 +1,10 @@
 import logging
 import tkinter as tk
-from tkinter.messagebox import showerror
 import tkinter.ttk as ttk
-from typing import Callable, Optional
 import webbrowser
+from tkinter.messagebox import showerror
+from typing import Callable, Optional
 
-from wireviz.DataClasses import Connector, Cable, Connection
 from wireviz.wireviz import Harness
 from wireviz.wv_colors import _color_full
 from wireviz.wv_helper import awg_equiv_table, mm2_equiv_table
@@ -241,7 +240,7 @@ class AddConnectorFrame(BaseFrame):
             # PinsFrame returns [name1, name2, ...]
             # If name matches label, it might be redundant, but WireViz uses pinout for text display.
             # Let's include it if present.
-            if any(str(n) != str(l) for n, l in zip(pinout, pinlabels)):
+            if any(str(n) != str(label) for n, label in zip(pinout, pinlabels)):
                 kwargs["pinlabels"] = pinout
 
         connector_data = {name: kwargs}
@@ -678,8 +677,6 @@ class WireFrame(BaseFrame):
         self._wire_color_cb = ttk.Combobox(self, values=color_values)
         self._wire_color_cb.grid(row=0, column=1, sticky="ew")
 
-        # Set default
-        default_color = "WH"
         if self._wire_color:
             # Try to match existing color to formatted string
             matching = [
@@ -703,7 +700,10 @@ class WireFrame(BaseFrame):
             "<<ComboboxSelected>>", lambda _: self._update_wire_color()
         )
 
-        self._x_label = AlertLabel(self, text="X", )
+        self._x_label = AlertLabel(
+            self,
+            text="X",
+        )
         self._x_label.grid(row=0, column=2, sticky="ew")
         self._x_label.bind("<Button-1>", lambda _: self._delete())
 
@@ -780,11 +780,18 @@ class AddConnectionFrame(BaseFrame):
         cables = list(self._harness.cables.keys())
 
         r += 1
-        NormLabel(self, text="From", ).grid(row=r, column=0, sticky="ew")
-        NormLabel(self, text="Through", ).grid(
-            row=r, column=1, sticky="ew"
-        )
-        NormLabel(self, text="To", ).grid(row=r, column=2, sticky="ew")
+        NormLabel(
+            self,
+            text="From",
+        ).grid(row=r, column=0, sticky="ew")
+        NormLabel(
+            self,
+            text="Through",
+        ).grid(row=r, column=1, sticky="ew")
+        NormLabel(
+            self,
+            text="To",
+        ).grid(row=r, column=2, sticky="ew")
 
         r += 1
         self._from_connector_cb = ttk.Combobox(self, values=connectors)

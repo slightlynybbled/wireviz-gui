@@ -17,7 +17,7 @@ class Menu(BaseMenu):
         refresh: Callable,
         reload_file: Callable,
         about: Callable,
-        new_file: Callable = None,
+        new_file: Optional[Callable] = None,
         load_example: Optional[Callable] = None,
         close_tab: Optional[Callable] = None,
         examples: Optional[dict] = None,

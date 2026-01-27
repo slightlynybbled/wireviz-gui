@@ -1,20 +1,21 @@
 import logging
+import tkinter as tk
 from io import BytesIO
 from pathlib import Path
-import tkinter as tk
 from tkinter import ttk
-from tkinter.filedialog import asksaveasfilename, askopenfilename
+from tkinter.filedialog import askopenfilename, asksaveasfilename
 from tkinter.messagebox import showerror, showinfo
-from typing import Callable, Optional, Union
+from typing import Callable, Optional
 
-from graphviz import ExecutableNotFound
-from PIL import ImageTk, Image
-from tk_tools import ToolTip
-from wireviz.wireviz import Harness, parse
-from wireviz.DataClasses import Connector, Cable, Metadata, Options, Tweak
-from yaml import YAMLError
 import yaml
+from graphviz import ExecutableNotFound
+from PIL import Image, ImageTk
+from tk_tools import ToolTip
+from wireviz.DataClasses import Connector, Metadata, Options, Tweak
+from wireviz.wireviz import Harness, parse
+from yaml import YAMLError
 
+from wireviz_gui import __version__
 from wireviz_gui._base import BaseFrame, HeadButton, LinkLabel, NormLabel, ToplevelBase
 from wireviz_gui.dialogs import (
     AboutFrame,
@@ -22,11 +23,18 @@ from wireviz_gui.dialogs import (
     AddConnectionFrame,
     AddConnectorFrame,
 )
-from wireviz_gui.mating_dialog import AddMateDialog
-from wireviz_gui.images import *
-from wireviz_gui.menus import Menu
 from wireviz_gui.examples import EXAMPLES
-from wireviz_gui.version import __version__
+from wireviz_gui.images import (
+    add_box_fill,
+    add_circle_fill,
+    folder_transfer_fill,
+    links_fill,
+    logo,
+    refresh_fill,
+    slightlynybbled_logo_small,
+)
+from wireviz_gui.mating_dialog import AddMateDialog
+from wireviz_gui.menus import Menu
 
 
 def preprocess_yaml_data(data):
@@ -40,34 +48,34 @@ def preprocess_yaml_data(data):
         return data
 
     # Fix: Handle Cable labels by moving them to notes
-    if 'cables' in data and isinstance(data['cables'], dict):
-        for cable_name, cable_data in data['cables'].items():
-            if isinstance(cable_data, dict) and 'label' in cable_data:
-                label = cable_data.pop('label')
-                if 'notes' in cable_data:
-                     cable_data['notes'] = str(cable_data['notes']) + "\n" + str(label)
+    if "cables" in data and isinstance(data["cables"], dict):
+        for cable_name, cable_data in data["cables"].items():
+            if isinstance(cable_data, dict) and "label" in cable_data:
+                label = cable_data.pop("label")
+                if "notes" in cable_data:
+                    cable_data["notes"] = str(cable_data["notes"]) + "\n" + str(label)
                 else:
-                     cable_data['notes'] = str(label)
+                    cable_data["notes"] = str(label)
 
-    if 'connections' not in data:
+    if "connections" not in data:
         return data
 
-    connections = data['connections']
+    connections = data["connections"]
     if not isinstance(connections, list):
         return data
 
     # Get known connectors (designators) to support Connector.Pin syntax
     known_connectors = set()
-    if 'connectors' in data and isinstance(data['connectors'], dict):
-        known_connectors = set(data['connectors'].keys())
+    if "connectors" in data and isinstance(data["connectors"], dict):
+        known_connectors = set(data["connectors"].keys())
 
     new_connections = []
 
     # Helper to parse node string into wireviz compatible format
     def parse_node(node_str):
         # Fix: Handle Connector.Pin syntax
-        if isinstance(node_str, str) and '.' in node_str:
-            parts = node_str.split('.')
+        if isinstance(node_str, str) and "." in node_str:
+            parts = node_str.split(".")
             if len(parts) == 2:
                 designator = parts[0]
                 pin = parts[1]
@@ -108,8 +116,9 @@ def preprocess_yaml_data(data):
             else:
                 new_connections.append(conn)
 
-    data['connections'] = new_connections
+    data["connections"] = new_connections
     return data
+
 
 # Alias for backward compatibility if needed, though mostly internal
 normalize_connections = preprocess_yaml_data
@@ -275,14 +284,15 @@ class InputOutputFrame(BaseFrame):
 
         r += 1
         self._paned_window = ttk.PanedWindow(self, orient=tk.VERTICAL)
-        self._paned_window.grid(row=r, column=0, sticky='news')
+        self._paned_window.grid(row=r, column=0, sticky="news")
 
         # Configure expansion for the paned window row
         self.grid_rowconfigure(r, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self._text_entry_frame = TextEntryFrame(self._paned_window,
-                                                on_update_callback=self.parse_text)
+        self._text_entry_frame = TextEntryFrame(
+            self._paned_window, on_update_callback=self.parse_text
+        )
         self._harness_view_frame = HarnessViewFrame(self._paned_window)
 
         self._paned_window.add(self._text_entry_frame, weight=1)
@@ -466,13 +476,13 @@ class InputOutputFrame(BaseFrame):
 
     def save_graph_image(self):
         if not self._harness_view_frame.has_image():
-            showinfo('Save Image', 'No image to save.')
+            showinfo("Save Image", "No image to save.")
             return
 
         file_name = asksaveasfilename(
             title="Export Graph Image",
             defaultextension=".png",
-            filetypes=[("PNG files", "*.png"), ("All files", "*.*")]
+            filetypes=[("PNG files", "*.png"), ("All files", "*.*")],
         )
         if not file_name:
             return
@@ -495,7 +505,12 @@ class InputOutputFrame(BaseFrame):
                     inp=data,
                     output_dir=path.parent,
                     output_name=path.stem,
-                    output_formats=("png", "svg", "html", "tsv", ),
+                    output_formats=(
+                        "png",
+                        "svg",
+                        "html",
+                        "tsv",
+                    ),
                 )
             except (ExecutableNotFound, FileNotFoundError):
                 showerror(
@@ -518,10 +533,7 @@ class InputOutputFrame(BaseFrame):
             try:
                 data = yaml.safe_load(yaml_input)
                 data = normalize_connections(data)
-                png_data, new_harness = parse(
-                    inp=data,
-                    return_types=('png', "harness")
-                )
+                png_data, new_harness = parse(inp=data, return_types=("png", "harness"))
                 self._harness.connectors = new_harness.connectors
                 self._harness.cables = new_harness.cables
                 self._harness.mates = new_harness.mates
@@ -533,8 +545,10 @@ class InputOutputFrame(BaseFrame):
                 for line in lines.split("\n"):
                     if "line" in line:
                         # determine the line number that has a problem
-                        parts = [l.strip() for l in line.split(",")]
-                        part = [l for l in parts if "line" in l][0]
+                        parts = [line_part.strip() for line_part in line.split(",")]
+                        part = [
+                            line_part for line_part in parts if "line" in line_part
+                        ][0]
                         error_line = part.split(" ")[1]
                         self._text_entry_frame.highlight_line(error_line)
                         break
@@ -701,14 +715,16 @@ class ButtonFrame(BaseFrame):
 
         c += 1
         self._export_img = tk.PhotoImage(data=folder_transfer_fill)
-        save_img_btn = tk.Button(self,
-                                 image=self._export_img,
-                                 command=on_click_save_image)
+        save_img_btn = tk.Button(
+            self, image=self._export_img, command=on_click_save_image
+        )
         save_img_btn.grid(row=0, column=c, sticky="ew")
-        ToolTip(save_img_btn, 'Save Graph Image')
+        ToolTip(save_img_btn, "Save Graph Image")
 
         c += 1
-        export_img_btn = tk.Button(self, image=self._export_img, command=on_click_export)
+        export_img_btn = tk.Button(
+            self, image=self._export_img, command=on_click_export
+        )
         export_img_btn.grid(row=0, column=c, sticky="ew")
         ToolTip(export_img_btn, "Export All")
 
@@ -754,7 +770,7 @@ class TextEntryFrame(BaseFrame):
         self._text.delete("1.0", "end")
 
     def highlight_line(self, line_number: str):
-        self._text.tag_remove("highlight", f"0.0", "end")
+        self._text.tag_remove("highlight", "0.0", "end")
 
         if line_number is not None:
             self._text.tag_add("highlight", f"{line_number}.0", f"{line_number}.40")
@@ -768,27 +784,33 @@ class HarnessViewFrame(BaseFrame):
         self.grid_rowconfigure(0, weight=1)
         self.grid_columnconfigure(0, weight=1)
 
-        self._canvas = tk.Canvas(self, bg='white')
-        self._canvas.grid(row=0, column=0, sticky='news')
+        self._canvas = tk.Canvas(self, bg="white")
+        self._canvas.grid(row=0, column=0, sticky="news")
 
-        self._v_scroll = tk.Scrollbar(self, orient='vertical', command=self._canvas.yview)
-        self._v_scroll.grid(row=0, column=1, sticky='ns')
+        self._v_scroll = tk.Scrollbar(
+            self, orient="vertical", command=self._canvas.yview
+        )
+        self._v_scroll.grid(row=0, column=1, sticky="ns")
 
-        self._h_scroll = tk.Scrollbar(self, orient='horizontal', command=self._canvas.xview)
-        self._h_scroll.grid(row=1, column=0, sticky='ew')
+        self._h_scroll = tk.Scrollbar(
+            self, orient="horizontal", command=self._canvas.xview
+        )
+        self._h_scroll.grid(row=1, column=0, sticky="ew")
 
-        self._canvas.configure(yscrollcommand=self._v_scroll.set, xscrollcommand=self._h_scroll.set)
+        self._canvas.configure(
+            yscrollcommand=self._v_scroll.set, xscrollcommand=self._h_scroll.set
+        )
 
         self._image = None
         self._tk_image = None
         self._scale = 1.0
 
         # Bindings for Pan and Zoom
-        self._canvas.bind('<ButtonPress-1>', self._on_move_press)
-        self._canvas.bind('<B1-Motion>', self._on_move_drag)
-        self._canvas.bind('<MouseWheel>', self._on_zoom)
-        self._canvas.bind('<Button-4>', self._on_zoom)
-        self._canvas.bind('<Button-5>', self._on_zoom)
+        self._canvas.bind("<ButtonPress-1>", self._on_move_press)
+        self._canvas.bind("<B1-Motion>", self._on_move_drag)
+        self._canvas.bind("<MouseWheel>", self._on_zoom)
+        self._canvas.bind("<Button-4>", self._on_zoom)
+        self._canvas.bind("<Button-5>", self._on_zoom)
 
     def _on_move_press(self, event):
         self._canvas.scan_mark(event.x, event.y)
@@ -815,8 +837,8 @@ class HarnessViewFrame(BaseFrame):
             try:
                 self._image.save(filepath)
             except Exception as e:
-                self._logger.error(f'Error saving image: {e}')
-                showerror('Save Error', f'Could not save image:\n{e}')
+                self._logger.error(f"Error saving image: {e}")
+                showerror("Save Error", f"Could not save image:\n{e}")
 
     def update_image(self, png_data):
         if not png_data:
@@ -827,9 +849,13 @@ class HarnessViewFrame(BaseFrame):
             self._scale = 1.0
             self._redraw()
         except Exception as e:
-            self._logger.error(f'Error loading image: {e}')
+            self._logger.error(f"Error loading image: {e}")
             from tkinter.messagebox import showerror
-            showerror('Graph Creation Error', f'There was an error parsing the last request: {e}')
+
+            showerror(
+                "Graph Creation Error",
+                f"There was an error parsing the last request: {e}",
+            )
 
     def _redraw(self):
         if not self._image:
