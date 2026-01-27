@@ -1,6 +1,8 @@
 [project]
 name = "wireviz-gui"
-version = "0.3.2"
+version = "0.3.2"   # this version doesn't make its way into
+                    # the package and must be manually changed
+                    # in the wireviz_gui/version.py file
 readme = "readme.md"
 requires-python = ">=3.14"
 dependencies = [
