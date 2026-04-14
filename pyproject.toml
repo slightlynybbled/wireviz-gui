@@ -17,7 +17,7 @@ dependencies = [
 [dependency-groups]
 dev = [
     "pyinstaller>=6.18.0",
-    "pytest>=9.0.2",
+    "pytest>=9.0.3",
     "ruff>=0.14.13",
     "types-pyyaml>=6.0.12.20250915",
 ]
